@@ -23,9 +23,24 @@ class LoginRequest extends FormRequest
      */
     public function rules()
     {
+        $username_rule = $this->user_type == 'intern' ? 'interns,student_number' : 'users,username';
+        
         return [
-            'email'     => 'required|email',
-            'password'  => 'required',
+            'username'      => 'required|exists:' . $username_rule,
+            'password'      => 'required',
+        ];
+    }
+
+    public function messages()
+    {
+        $username_exist_message =  $this->user_type == 'intern' ? 
+            'Student does not exist.' : 
+            'User does not exist.';
+        
+        return [
+            'username.required'     => 'Please input your username',
+            'username.exists'       => $username_exist_message,
+            'password.required'     => 'Please input your password',
         ];
     }
 }
