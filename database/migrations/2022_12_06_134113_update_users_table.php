@@ -15,21 +15,26 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('middle_name')
-                ->after('first_name');
+                ->after('first_name')
+                ->nullable();
             $table->string('suffix')
                 ->after('last_name');
             $table->string('gender')
-                ->after('suffix');
+                ->after('suffix')
+                ->nullable();
             $table->string('birthday')
                 ->after('gender');
             $table->string('contact_number')
-                ->after('birthday');
+                ->after('birthday')
+                ->nullable();
             $table->string('civil_status')
                 ->after('contact_number');
             $table->string('profile_picture')
-                ->after('password');
+                ->after('password')
+                ->nullable();
             $table->string('e_signature')
-                ->after('profile_picture');
+                ->after('profile_picture')
+                ->nullable();
         });
     }
 

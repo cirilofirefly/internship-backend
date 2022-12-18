@@ -59,7 +59,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         if($this->authenticate($request->validated())) {
-            return response()->json($this->generateCredentials($request->email), 200);
+            return response()->json($this->generateCredentials(auth()->user()->email), 200);
         }
         return response()->json(['message' => 'Invalid credentials.'], 401);
     }

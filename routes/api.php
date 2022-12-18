@@ -25,7 +25,7 @@ Route::get('/test', function (Request $request) {
 });
 
 
-Route::controller(AuthController::class)->group(function(){
+Route::controller(AuthController::class)->group(function () {
     Route::post('register', 'register');
     Route::post('login', 'login');
     Route::get('signin/{method}', 'signin');
@@ -33,11 +33,17 @@ Route::controller(AuthController::class)->group(function(){
     Route::post('logout', 'logout')->middleware('auth:sanctum');
     Route::get('auth/google/callback', 'googleCallback');
 });
-        
-Route::middleware('auth:sanctum')->group( function () {
+
+Route::controller(UserController::class)->group(function () {
+    Route::post('save-user', 'saveUser');
+    Route::get('get-users', 'getUsers');
+    Route::get('get-user/{id}', 'getUser');
+});
+
+Route::middleware('auth:sanctum')->group(function () {
     Route::resource('users', UserController::class);
 });
 
-Route::middleware('auth:sanctum')->group( function () {
+Route::middleware('auth:sanctum')->group(function () {
     // Route::apiResource('me', [AuthController::class, 'me']);
 });

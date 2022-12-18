@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserRequest extends FormRequest
@@ -13,7 +14,7 @@ class UserRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,8 +24,24 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
+
+        $rules = $this->user_id != -1 ? [
+            'contact_number'    => "required",
+            'email'             => "required|email|unique:users,email," . $this->user_id,
+            'first_name'        => "required",
+            'last_name'         => "required",
+            'user_type'         => "required|in:" . User::COORDINATOR . ','  . User::SUPERVISOR . ',' . User::INTERN,
+            'username'          => "required|unique:users,username," . $this->user_id,
+        ] : [
+            'contact_number'    => "required",
+            'email'             => "required|email|unique:users,email",
+            'first_name'        => "required",
+            'last_name'         => "required",
+            'password'          => "required|confirmed",
+            'user_type'         => "required|in:" . User::COORDINATOR . ','  . User::SUPERVISOR . ',' . User::INTERN,
+            'username'          => "required|unique:users,username",
         ];
+
+        return $rules;
     }
 }
