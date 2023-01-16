@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\InternRegistration;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegistrationRequest;
 use App\Models\Auth\RememberToken;
+use App\Models\Intern;
 use App\Models\User;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
@@ -59,6 +61,8 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         if($this->authenticate($request->validated())) {
+            if(auth()->user()->user_type == User::INTERN && auth()->user()->status == User::DECLINED) 
+                return  response()->json(['declined' => true]);
             return response()->json($this->generateCredentials(auth()->user()->email), 200);
         }
         return response()->json(['message' => 'Invalid credentials.'], 401);
@@ -83,6 +87,36 @@ class AuthController extends Controller
         return response()->json([
             'message' => "Your registraion is successful. Please wait for Admin's approval."
         ]);
+    }
+
+    public function registerIntern(InternRegistration $request) 
+    {
+        $data = [
+            'username'          => $request->student_number,
+            'password'          => $request->password,
+            'first_name'        => $request->first_name,
+            'last_name'         => $request->last_name,
+            'middle_name'       => $request->middle_name,
+            'suffix'            => $request->suffix,
+            'gender'            => $request->gender,
+            'birthday'          => $request->birthday,
+            'email'             => $request->email,
+            'nationality'       => $request->nationality,
+            'civil_status'      => $request->civil_status,
+            'contact_number'    => $request->contact_number,
+            'user_type'         => User::INTERN,
+        ];
+        $user = User::create($data);
+        Intern::create([
+            'student_number'    => $request->student_number,
+            'year_level'        => $request->year_level,
+            'college'           => $request->college,
+            'program'           => $request->program,
+            'section'           => $request->section,
+            'portal_id'         => $user->id,
+            'coordinator_id'    => $request->coordinator_id
+        ]);
+        return response()->json(['status' => 'success'], 200);
     }
 
     private function authenticate($user)

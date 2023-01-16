@@ -18,7 +18,8 @@ return new class extends Migration
                 ->after('first_name')
                 ->nullable();
             $table->string('suffix')
-                ->after('last_name');
+                ->after('last_name')
+                ->nullable();
             $table->string('gender')
                 ->after('suffix')
                 ->nullable();

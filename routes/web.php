@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +16,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    // return view('welcome');
+    return asset('storage/profile_pictures/t0nF7j4xu1FOdEAGzpzxNWL8uhg3y76JhPN3zUlp.jpg');
 });
 
 Route::controller(AuthController::class)->group(function(){

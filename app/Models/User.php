@@ -19,6 +19,10 @@ class User extends Authenticatable
     public const COORDINATOR = 'coordinator';
     public const SUPERVISOR = 'supervisor';
 
+    public const APPROVED = 'approved';
+    public const DECLINED = 'declined';
+    public const PENDING = 'pending';
+
     public const USER_TYPES = [
         self::SUPER_ADMIN,
         self::ADMIN,
@@ -33,35 +37,25 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'first_name',
+        'last_name',
+        'middle_name',
         'birthday',
+        'nationality',
         'civil_status',
         'contact_number',
         'email',
-        'first_name',
         'gender',
-        'last_name',
-        'middle_name',
         'password',
-        'password_confirmation',
         'suffix',
-        'user_id',
         'user_type',
         'username',
         'profile_picture',
-        'e_signature'
+        'e_signature',
+        'is_approved'
     ];
 
     protected $appends = ['full_name'];
-
-    public function getFullNameAttribute()
-    {
-        return $this->first_name . ' ' . $this->last_name;
-    }
-
-    public function setPasswordAttribute($password)
-    {
-        $this->attributes['password'] = Hash::make($password);
-    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -82,4 +76,34 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function setPasswordAttribute($password)
+    {
+        $this->attributes['password'] = Hash::make($password);
+    }
+
+    public function scopeWhereIntern($query)
+    {
+        return $query->where('user_type', User::INTERN);
+    }
+
+    public function scopeWhereUserId($query, $value)
+    {
+        return $query->where('id', $value);
+    }
+
+    public function intern()
+    {
+        return $this->belongsTo('App\Models\Intern', 'id', 'portal_id');
+    }
+
+    public function coordinator()
+    {
+        return $this->belongsTo('App\Models\Coordinator', 'id', 'portal_id');
+    }
 }

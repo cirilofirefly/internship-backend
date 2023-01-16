@@ -20,13 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/test', function (Request $request) {
-    return 'test';
-});
-
-
 Route::controller(AuthController::class)->group(function () {
-    Route::post('register', 'register');
+    Route::post('register-intern', 'registerIntern');
     Route::post('login', 'login');
     Route::get('signin/{method}', 'signin');
     Route::get('get-remember-token', 'getRememberToken');
@@ -34,16 +29,30 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('auth/google/callback', 'googleCallback');
 });
 
+Route::middleware('auth:sanctum')
+    ->controller(UserController::class)
+    ->prefix('coordinator')
+    ->group(function () {
+
+        Route::post('save-user', 'saveUser');
+        Route::get('get-interns', 'getInterns');
+        Route::post('approve-intern', 'approveIntern');
+        Route::post('decline-intern', 'declineIntern');
+        Route::get('get-intern/{id}', 'getIntern');
+
+
+        Route::get('get-user/{id}', 'getUser');
+        Route::get('profile-info', 'getProfileInfo');
+        Route::put('update-profile', 'updateProfile');
+});
+
+Route::middleware('auth:sanctum')
+    ->controller(UserController::class)
+    ->group(function () {
+        Route::post('update-profile-picture', 'uploadProfilePicture');
+        Route::post('update-e-signature', 'uploadESignature');
+});
+
 Route::controller(UserController::class)->group(function () {
-    Route::post('save-user', 'saveUser');
-    Route::get('get-users', 'getUsers');
-    Route::get('get-user/{id}', 'getUser');
-});
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::resource('users', UserController::class);
-});
-
-Route::middleware('auth:sanctum')->group(function () {
-    // Route::apiResource('me', [AuthController::class, 'me']);
+    Route::get('available-coordinator', 'availableCoordinator');
 });
