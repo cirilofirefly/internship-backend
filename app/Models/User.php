@@ -13,17 +13,17 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    public const SUPER_ADMIN = 'super-admin';
-    public const ADMIN = 'admin';
-    public const INTERN = 'intern';
-    public const COORDINATOR = 'coordinator';
-    public const SUPERVISOR = 'supervisor';
+    const SUPER_ADMIN = 'super-admin';
+    const ADMIN = 'admin';
+    const INTERN = 'intern';
+    const COORDINATOR = 'coordinator';
+    const SUPERVISOR = 'supervisor';
 
-    public const APPROVED = 'approved';
-    public const DECLINED = 'declined';
-    public const PENDING = 'pending';
+    const APPROVED = 'approved';
+    const DECLINED = 'declined';
+    const PENDING = 'pending';
 
-    public const USER_TYPES = [
+    const USER_TYPES = [
         self::SUPER_ADMIN,
         self::ADMIN,
         self::INTERN,
@@ -52,7 +52,7 @@ class User extends Authenticatable
         'username',
         'profile_picture',
         'e_signature',
-        'is_approved'
+        'status'
     ];
 
     protected $appends = ['full_name'];
@@ -92,18 +92,28 @@ class User extends Authenticatable
         return $query->where('user_type', User::INTERN);
     }
 
+    public function scopeWhereSupervisor($query)
+    {
+        return $query->where('user_type', User::SUPERVISOR);
+    }
+
     public function scopeWhereUserId($query, $value)
     {
         return $query->where('id', $value);
     }
 
-    public function intern()
-    {
-        return $this->belongsTo('App\Models\Intern', 'id', 'portal_id');
-    }
-
     public function coordinator()
     {
-        return $this->belongsTo('App\Models\Coordinator', 'id', 'portal_id');
+        return $this->hasOne('App\Models\Coordinator', 'portal_id');
+    }
+
+    public function supervisor()
+    {
+        return $this->hasOne('App\Models\Supervisor', 'portal_id');
+    }
+
+    public function intern()
+    {
+        return $this->hasOne('App\Models\Intern', 'portal_id');
     }
 }

@@ -33,22 +33,25 @@ Route::middleware('auth:sanctum')
     ->controller(UserController::class)
     ->prefix('coordinator')
     ->group(function () {
-
-        Route::post('save-user', 'saveUser');
         Route::get('get-interns', 'getInterns');
+        Route::get('get-intern/{id}', 'getIntern');
         Route::post('approve-intern', 'approveIntern');
         Route::post('decline-intern', 'declineIntern');
-        Route::get('get-intern/{id}', 'getIntern');
 
+        Route::get('get-supervisors', 'getSupervisors');
+        Route::get('get-supervisor/{id}', 'getSupervisor');
+        Route::post('create-supervisor', 'createSupervisor');
+        Route::put('update-supervisor', 'updateSupervisor');
 
+        Route::post('save-user', 'saveUser');
         Route::get('get-user/{id}', 'getUser');
-        Route::get('profile-info', 'getProfileInfo');
-        Route::put('update-profile', 'updateProfile');
 });
 
 Route::middleware('auth:sanctum')
     ->controller(UserController::class)
     ->group(function () {
+        Route::get('profile-info', 'getProfileInfo');
+        Route::put('update-profile', 'updateProfile');
         Route::post('update-profile-picture', 'uploadProfilePicture');
         Route::post('update-e-signature', 'uploadESignature');
 });

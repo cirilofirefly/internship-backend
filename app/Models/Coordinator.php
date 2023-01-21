@@ -10,4 +10,8 @@ class Coordinator extends Model
         'portal_id',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User', 'portal_id', 'id');
+    }
 }

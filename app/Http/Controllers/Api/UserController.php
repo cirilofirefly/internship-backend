@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SupervisorRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\Coordinator;
@@ -29,6 +30,82 @@ class UserController extends Controller
                 'edit_mode'
             )
         );        
+    }
+
+    public function createSupervisor(SupervisorRequest $request)
+    {
+        $user = User::create([
+            'username'          => $request->username,
+            'email'             => $request->email,
+            'password'          => $request->password,
+            'first_name'        => $request->first_name,
+            'last_name'         => $request->last_name,
+            'middle_name'       => $request->middle_name,
+            'suffix'            => $request->suffix,
+            'contact_number'    => $request->contact_number,
+            'birthday'          => $request->birthday,
+            'gender'            => $request->gender,
+            'nationality'       => $request->nationality,
+            'civil_status'      => $request->civil_status,
+            'status'            => User::APPROVED,
+            'user_type'         => User::SUPERVISOR,
+        ]);
+
+        Supervisor::create([
+            'host_establishment'    => $request->host_establishment,
+            'designation'           => $request->designation,
+            'portal_id'             => $user->id,
+            'coordinator_id'        => $request->user()->id
+        ]);
+
+        return response()->json($user, 200);
+    }
+
+    public function updateSupervisor(SupervisorRequest $request)
+    {
+        $user = User::where('id', $request->id)->update([
+            'username'          => $request->username,
+            'email'             => $request->email,
+            'first_name'        => $request->first_name,
+            'last_name'         => $request->last_name,
+            'middle_name'       => $request->middle_name,
+            'suffix'            => $request->suffix,
+            'contact_number'    => $request->contact_number,
+            'birthday'          => $request->birthday,
+            'gender'            => $request->gender,
+            'nationality'       => $request->nationality,
+            'civil_status'      => $request->civil_status,
+        ]);
+
+        Supervisor::where('portal_id', $request->id)
+            ->update([
+                'host_establishment'    => $request->host_establishment,
+                'designation'           => $request->designation
+            ]);
+
+        return response()->json($user, 200);
+    }
+
+    public function getSupervisors(Request $request)
+    {
+        return response()->json(
+            User::whereSupervisor()
+                ->with('supervisor', function($query) use($request) {
+                    $query->where('coordinator_id', $request->user()->id);
+                })
+                ->where(function($query) use($request) {
+                    if($request->status != 'null')
+                        return $query->where('status', $request->status);
+                })
+                ->paginate(5)
+        );
+    }
+
+    public function getSupervisor($id)
+    {
+        return User::whereSupervisor()
+            ->where('id', $id)
+            ->first();
     }
 
     public function getInterns(Request $request)
@@ -60,13 +137,13 @@ class UserController extends Controller
             ->update(['status' => User::DECLINED]);
     }
 
+
     public function getIntern($id)
     {
         return User::whereIntern()
             ->where('id', $id)
             ->first();
     }
-
 
     public function getUser($id)
     {
@@ -112,7 +189,7 @@ class UserController extends Controller
 
     public function getProfileInfo(Request $request) 
     {
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('id', $request->user()->id)->first();
         return response()->json([
             'user'              => $user,
             $user->user_type    => $this->getProfileDataByUserType($user)
@@ -123,7 +200,7 @@ class UserController extends Controller
     {
         if($request->file('profile_picture')) {
             $file = $request->profile_picture->store('profile_pictures');
-            User::where('id', $request->user_id)->update(['profile_picture' => $file]);
+            User::where('id', $request->user()->id)->update(['profile_picture' => $file]);
 
             if(isset($request->profile_picture_path)) {
                 $this->deleteFileIfExist($request->profile_picture_path);
@@ -139,7 +216,7 @@ class UserController extends Controller
 
         if($request->file('e_signature')) {
             $file = $request->e_signature->store('e_signatures');
-            User::where('id', $request->user_id)->update(['e_signature' => $file]);
+            User::where('id', $request->user()->id)->update(['e_signature' => $file]);
 
             if(isset($request->e_signature_path)) {
                 $this->deleteFileIfExist($request->e_signature_path);
