@@ -116,4 +116,9 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Models\Intern', 'portal_id');
     }
+
+    public function requirements()
+    {
+        return $this->hasMany('App\Models\Requirement', 'user_id');
+    }
 }

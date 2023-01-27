@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,16 @@ Route::middleware('auth:sanctum')
 
         Route::post('save-user', 'saveUser');
         Route::get('get-user/{id}', 'getUser');
+});
+
+Route::middleware('auth:sanctum')
+    ->controller(RequirementController::class)
+    ->prefix('intern')
+    ->group(function () {
+        Route::get('get-requirements', 'getRequirements');
+        Route::post('upload-requirement', 'uploadRequirement');
+        Route::delete('delete-requirement/{id}', 'deleteRequirement');
+        Route::get('download-file/{id}', 'downloadFile');
 });
 
 Route::middleware('auth:sanctum')
