@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CoordinatorController;
 use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
@@ -49,6 +50,16 @@ Route::middleware('auth:sanctum')
 });
 
 Route::middleware('auth:sanctum')
+    ->controller(CoordinatorController::class)
+    ->prefix('coordinator')
+    ->group(function () {
+        Route::get('get-offices', 'getOffices');
+        Route::get('get-approved-interns', 'getApprovedInterns');
+        Route::post('assign-intern', 'assignIntern');
+});
+
+
+Route::middleware('auth:sanctum')
     ->controller(RequirementController::class)
     ->prefix('intern')
     ->group(function () {
@@ -57,6 +68,7 @@ Route::middleware('auth:sanctum')
         Route::delete('delete-requirement/{id}', 'deleteRequirement');
         Route::get('download-file/{id}', 'downloadFile');
 });
+
 
 Route::middleware('auth:sanctum')
     ->controller(UserController::class)

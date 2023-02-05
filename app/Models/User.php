@@ -97,6 +97,11 @@ class User extends Authenticatable
         return $query->where('user_type', User::SUPERVISOR);
     }
 
+    public function scopeApproved($query)
+    {
+        return $query->where('status', User::APPROVED);
+    }
+
     public function scopeWhereUserId($query, $value)
     {
         return $query->where('id', $value);
@@ -120,5 +125,11 @@ class User extends Authenticatable
     public function requirements()
     {
         return $this->hasMany('App\Models\Requirement', 'user_id');
+    }
+
+
+    public function assignedInterns()
+    {
+        return $this->hasMany('App\Models\AssignedIntern', 'supervisor_user_id');
     }
 }

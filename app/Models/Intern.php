@@ -10,6 +10,7 @@ class Intern extends Model
         'student_number',
         'coordinator_id',
         'portal_id',
+        'is_assigned'
     ];
 
     public function user()
