@@ -17,10 +17,10 @@ return new class extends Migration
             $table->id();
             $table->longText('activities');
             $table->longText('learning');
-            $table->unsignedBigInteger('date_time_record_id');
-            $table->foreign('date_time_record_id')
+            $table->unsignedBigInteger('daily_time_record_id');
+            $table->foreign('daily_time_record_id')
                 ->references('id')
-                ->on('date_time_records')
+                ->on('daily_time_records')
                 ->onDelete('cascade');
             $table->boolean("is_approved")
                 ->nullable()

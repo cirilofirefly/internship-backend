@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DateTimeRecord extends Model
+class DailyTimeRecord extends Model
 {
-    protected $table = 'date_time_records';
+    protected $table = 'daily_time_records';
     protected $fillable = [
         'date',
         'am_start_time',

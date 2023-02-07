@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CoordinatorController;
 use App\Http\Controllers\Api\RequirementController;
+use App\Http\Controllers\Api\DailyTimeRecordController
+;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +69,17 @@ Route::middleware('auth:sanctum')
         Route::post('upload-requirement', 'uploadRequirement');
         Route::delete('delete-requirement/{id}', 'deleteRequirement');
         Route::get('download-file/{id}', 'downloadFile');
+});
+
+Route::middleware('auth:sanctum')
+    ->controller(DailyTimeRecordController::class)
+    ->prefix('intern')
+    ->group(function () {
+
+        Route::get('get-daily-time-records', 'getDailyTimeRecords');
+        Route::post('save-daily-time-record', 'saveDailyTimeRecord');
+        Route::put('update-daily-time-record/{id}', 'updateDailyTimeRecord');
+        Route::delete('delete-daily-time-record/{id}', 'deleteDailyTimeRecord');
 });
 
 

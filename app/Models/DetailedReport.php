@@ -11,11 +11,11 @@ class DetailedReport extends Model
     protected $fillable = [
         'activities',
         'learning',
-        'date_time_record_id'
+        'daily_time_record_id'
     ];
 
     public function dateTimeRecord()
     {
-        return $this->hasOne('App\Models\DateTimeRecord', 'date_time_record_id', 'id');
+        return $this->hasOne('App\Models\DateTimeRecord', 'daily_time_record_id', 'id');
     }
 }
