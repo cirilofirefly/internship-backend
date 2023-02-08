@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CoordinatorController;
 use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\DailyTimeRecordController
 ;
+use App\Http\Controllers\Api\DetailedReportController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -80,6 +81,17 @@ Route::middleware('auth:sanctum')
         Route::post('save-daily-time-record', 'saveDailyTimeRecord');
         Route::put('update-daily-time-record/{id}', 'updateDailyTimeRecord');
         Route::delete('delete-daily-time-record/{id}', 'deleteDailyTimeRecord');
+
+});
+
+Route::middleware('auth:sanctum')
+    ->controller(DetailedReportController::class)
+    ->prefix('intern')
+    ->group(function () {
+
+        Route::get('get-detailed-reports', 'getDetailedReports');
+        Route::post('save-detailed-report', 'saveDetailedReport');
+
 });
 
 

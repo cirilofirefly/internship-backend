@@ -24,4 +24,9 @@ class DailyTimeRecord extends Model
     {
         return $this->belongsTo('App\Models\User', 'portal_id', 'id');
     }
+
+    public function detailedReport()
+    {
+        return $this->belongsTo('App\Models\DetailedReport', 'id', 'daily_time_record_id');
+    }
 }
