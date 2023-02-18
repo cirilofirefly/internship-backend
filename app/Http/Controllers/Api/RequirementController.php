@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RequirementRequest;
 use App\Models\Requirement;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,6 +14,14 @@ class RequirementController extends Controller
     public function getRequirements(Request $request)
     {
         return Requirement::where('user_id', $request->user()->id)
+            ->paginate(5);
+    }
+
+    public function getRequirementsAsCoordinator(Request $request)
+    {
+        return User::whereIntern()
+            ->with('requirements')
+            ->has('requirements')
             ->paginate(5);
     }
 

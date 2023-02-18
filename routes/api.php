@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\DailyTimeRecordController
 ;
 use App\Http\Controllers\Api\DetailedReportController;
+use App\Http\Controllers\Api\SupervisorController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -61,12 +62,19 @@ Route::middleware('auth:sanctum')
         Route::post('assign-intern', 'assignIntern');
 });
 
+Route::middleware('auth:sanctum')
+    ->controller(SupervisorController::class)
+    ->prefix('supervisor')
+    ->group(function () {
+        Route::get('get-assigned-interns', 'getAssignedInterns');
+});
 
 Route::middleware('auth:sanctum')
     ->controller(RequirementController::class)
     ->prefix('intern')
     ->group(function () {
         Route::get('get-requirements', 'getRequirements');
+        Route::get('get-requirements-as-coordinator', 'getRequirementsAsCoordinator');
         Route::post('upload-requirement', 'uploadRequirement');
         Route::delete('delete-requirement/{id}', 'deleteRequirement');
         Route::get('download-file/{id}', 'downloadFile');
@@ -88,7 +96,7 @@ Route::middleware('auth:sanctum')
     ->controller(DetailedReportController::class)
     ->prefix('intern')
     ->group(function () {
-
+        Route::get('get-offices', 'getOffices');
         Route::get('get-detailed-reports', 'getDetailedReports');
         Route::post('save-detailed-report', 'saveDetailedReport');
 
