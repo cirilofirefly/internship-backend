@@ -27,8 +27,8 @@ class InternRegistration extends FormRequest
     {
         return [
             'student_number'    => 'required|min:7|max:7',
-            'first_name'        => 'required|alpha|min:2|max:20',
-            'last_name'         => 'required|alpha|min:2|max:20',
+            'first_name'        => 'required|min:2|max:20',
+            'last_name'         => 'required|min:2|max:20',
             'email'             => 'required|email|unique:users',
             'gender'            => 'required',
             'password'          => 'bail|required|min:8|max:100|confirmed',
