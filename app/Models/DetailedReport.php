@@ -11,7 +11,8 @@ class DetailedReport extends Model
     protected $fillable = [
         'activities',
         'learning',
-        'daily_time_record_id'
+        'daily_time_record_id',
+        'status'
     ];
 
     public function dateTimeRecord()

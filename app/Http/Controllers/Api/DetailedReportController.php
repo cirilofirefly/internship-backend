@@ -16,11 +16,20 @@ class DetailedReportController extends Controller
 {
     public function getDetailedReports(Request $request)
     {
-        return DailyTimeRecord::where('user_id', $request->user()->id)
+        return collect(DailyTimeRecord::where('user_id', $request->user()->id)
+            ->select('daily_time_records.*', DB::raw("DATE_FORMAT(date, '%m-%Y') monthyear"))
             ->with('detailedReport')
-            ->orderBy('date', 'ASC')
-            ->paginate(5);
+            ->orderBy('date', 'DESC')
+            ->get())
+            ->groupBy('monthyear')
+            ->all();
         
+    }
+
+    public function submitDetailedReport(Request $request)
+    {
+        return DetailedReport::whereIn('id', $request->ids)
+            ->update(['status' => 'submitted']);
     }
 
     public function saveDetailedReport(DetailedReportRequest $request)

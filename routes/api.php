@@ -98,6 +98,7 @@ Route::middleware('auth:sanctum')
     ->prefix('intern')
     ->group(function () {
         Route::get('get-offices', 'getOffices');
+        Route::post('submit-detailed-report', 'submitDetailedReport');
         Route::get('get-detailed-reports', 'getDetailedReports');
         Route::post('save-detailed-report', 'saveDetailedReport');
 
