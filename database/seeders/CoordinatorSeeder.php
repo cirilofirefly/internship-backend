@@ -31,6 +31,7 @@ class CoordinatorSeeder extends Seeder
             'password'          => 'Test12345',
             'suffix'            => '',
             'username'          => 'marklesterlaurente',
+            'status'            => User::APPROVED,
             'profile_picture'   => '',
             'e_signature'       => ''
         ]);

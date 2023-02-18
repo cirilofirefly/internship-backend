@@ -30,6 +30,7 @@ class AdminSeeder extends Seeder
             'password'          => 'Test12345',
             'suffix'            => '',
             'username'          => 'superadmin',
+            'status'            => User::APPROVED,
             'profile_picture'   => '',
             'e_signature'       => ''
         ]);

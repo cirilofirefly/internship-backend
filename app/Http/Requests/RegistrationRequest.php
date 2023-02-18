@@ -26,8 +26,8 @@ class RegistrationRequest extends FormRequest
     public function rules()
     {
         return [
-            'first_name' => 'required|alpha|min:2|max:20',
-            'last_name'  => 'required|alpha|min:2|max:20',
+            'first_name' => 'required|min:2|max:20',
+            'last_name'  => 'required|min:2|max:20',
             'email'      => 'required|email|unique:users',
             'password'   => 'required|min:8|max:100',
             'user_type'  => ['required', Rule::in(User::USER_TYPES)]

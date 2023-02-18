@@ -31,6 +31,7 @@ class InternSeeder extends Seeder
             'password'          => 'Test12345',
             'suffix'            => '',
             'username'          => '1800600',
+            'status'            => User::APPROVED,
             'profile_picture'   => '',
             'e_signature'       => ''
         ]);

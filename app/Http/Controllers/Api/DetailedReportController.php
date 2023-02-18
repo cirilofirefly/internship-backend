@@ -10,6 +10,7 @@ use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DetailedReportController extends Controller
 {
@@ -19,6 +20,7 @@ class DetailedReportController extends Controller
             ->with('detailedReport')
             ->orderBy('date', 'ASC')
             ->paginate(5);
+        
     }
 
     public function saveDetailedReport(DetailedReportRequest $request)

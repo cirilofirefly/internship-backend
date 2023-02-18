@@ -15,8 +15,7 @@ class DailyTimeRecord extends Model
         'pm_end_time',
         'description',
         'overtime',
-        'is_submitted',
-        'is_approved',
+        'status',
         'user_id'
     ];
 
