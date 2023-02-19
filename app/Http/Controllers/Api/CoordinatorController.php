@@ -44,4 +44,9 @@ class CoordinatorController extends Controller
             ->whereRelation('intern', 'coordinator_id', auth()->user()->id)
             ->get();
     }
+
+    public function getAssignedInterns()
+    {
+        return AssignedIntern::with('intern')->get();
+    }
 }

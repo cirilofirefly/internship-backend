@@ -23,6 +23,7 @@ class DailyTimeRecordController extends Controller
     public function submitDailyTimeRecord(Request $request)
     {
         return DailyTimeRecord::whereIn('id', $request->ids)
+            ->where('status', 'default')
             ->update(['status' => 'submitted']);
     }
 
