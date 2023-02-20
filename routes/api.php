@@ -81,6 +81,7 @@ Route::middleware('auth:sanctum')
     ->prefix('intern')
     ->group(function () {
         Route::get('get-requirements', 'getRequirements');
+        Route::post('submit-requirements', 'submitRequirements');
         Route::get('get-requirements-as-coordinator', 'getRequirementsAsCoordinator');
         Route::post('upload-requirement', 'uploadRequirement');
         Route::delete('delete-requirement/{id}', 'deleteRequirement');

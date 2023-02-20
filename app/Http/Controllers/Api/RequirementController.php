@@ -34,6 +34,13 @@ class RequirementController extends Controller
             'file'          => $request->file('file')->store('requirements'),
         ]);
     }
+    
+    public function submitRequirements(Request $request)
+    {
+        return Requirement::whereIn('id', $request->ids)
+            ->where('status', 'default')
+            ->update(['status' => 'submitted']);
+    }
 
     public function deleteRequirement($id)
     {
