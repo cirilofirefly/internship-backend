@@ -40,7 +40,7 @@ class InternSeeder extends Seeder
             'student_number'    => '1800600',
             'year_level'        => '4th Year',
             'college'           => 'College of Arts and Sciences',
-            'program'           => 'Bachelor of Science in Information Technology',
+            'program'           => 'blis',
             'section'           => 'AI-41',
             'portal_id'         => $user->id,
             'coordinator_id'    => 1

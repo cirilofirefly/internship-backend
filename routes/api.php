@@ -74,6 +74,8 @@ Route::middleware('auth:sanctum')
         Route::get('get-intern-detailed-reports', 'getInternDetailedReports');
         Route::post('validate-intern-daily-time-records', 'validateInternDailyTimeRecords');
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
+        Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
+        Route::post('validate-requirements', 'validateRequirments');
 });
 
 Route::middleware('auth:sanctum')

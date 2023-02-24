@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
+use App\Models\Requirement;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -68,14 +69,18 @@ class SupervisorController extends Controller
             ->update(['status' => 'validated']);
     }
 
+    public function validateRequirments(Request $request) 
+    {
+        return Requirement::whereIn('id', $request->ids)
+            ->where('status', 'submitted')
+            ->update(['status' => 'validated']);
+    }
+
     public function validateInternDetailedReports(Request $request) 
     {
         return DetailedReport::whereIn('id', $request->ids)
             ->where('status', 'submitted')
             ->update(['status' => 'validated']);
     }
-
-    
-    
 
 }

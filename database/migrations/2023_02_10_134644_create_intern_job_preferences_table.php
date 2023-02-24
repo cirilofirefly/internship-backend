@@ -25,7 +25,8 @@ return new class extends Migration
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');
-            $table->string('job_preference');
+            $table->longText('evaluation');
+            $table->longText('job_preference');
             $table->timestamps();
         });
     }

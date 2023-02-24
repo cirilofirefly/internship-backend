@@ -13,7 +13,8 @@ class RequirementController extends Controller
 {
     public function getRequirements(Request $request)
     {
-        return Requirement::where('user_id', $request->user()->id)
+        $user_id = isset($request->from_supervisor) ? $request->user_id : $request->user()->id;
+        return Requirement::where('user_id', $user_id)
             ->paginate(5);
     }
 
