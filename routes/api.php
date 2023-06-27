@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\DailyTimeRecordController
 ;
 use App\Http\Controllers\Api\DetailedReportController;
+use App\Http\Controllers\Api\InternController;
 use App\Http\Controllers\Api\SupervisorController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
@@ -21,6 +22,11 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('store-intern-id',  [InternController::class, 'setInternUserIdAsCookie']);
+Route::get('get-intern-id',  function (Request $request) {
+    return json_decode($request->cookie('data'));
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -76,6 +82,7 @@ Route::middleware('auth:sanctum')
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-requirements', 'validateRequirments');
+        Route::post('save-intern-evaluation', 'saveInternEvaluation');
 });
 
 Route::middleware('auth:sanctum')

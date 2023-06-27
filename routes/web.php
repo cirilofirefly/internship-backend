@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\InternController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,11 +17,7 @@ use Illuminate\Support\Facades\Storage;
 |
 */
 
-Route::get('/', function () {
-    // return view('welcome');
-    return asset('storage/profile_pictures/t0nF7j4xu1FOdEAGzpzxNWL8uhg3y76JhPN3zUlp.jpg');
-});
-
+Route::get('store-intern-id',  [InternController::class, 'setInternUserIdAsCookie']);
 Route::controller(AuthController::class)->group(function(){
     Route::get('auth/facebook/callback', 'facebookCallback');
     Route::get('auth/google/callback', 'googleCallback');

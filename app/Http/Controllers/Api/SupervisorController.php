@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
+use App\Models\InterJobPreference;
 use App\Models\Requirement;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -81,6 +82,16 @@ class SupervisorController extends Controller
         return DetailedReport::whereIn('id', $request->ids)
             ->where('status', 'submitted')
             ->update(['status' => 'validated']);
+    }
+
+    public function saveInternEvaluation(Request $request)
+    {
+        return InterJobPreference::create([
+            'evaluator_user_id' => $request->user()->id,
+            'inter_user_id'     => $request->user_id,
+            'evaluation'        => $request->evaluation,
+            'job_preference'        => $request->job_preference,
+        ]);
     }
 
 }
