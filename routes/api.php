@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\Auth\ChangePasswordController;
+use App\Http\Controllers\Api\Auth\CodeCheckController;
+use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CoordinatorController;
 use App\Http\Controllers\Api\RequirementController;
-use App\Http\Controllers\Api\DailyTimeRecordController
-;
+use App\Http\Controllers\Api\DailyTimeRecordController;
 use App\Http\Controllers\Api\DetailedReportController;
 use App\Http\Controllers\Api\InternController;
 use App\Http\Controllers\Api\SupervisorController;
@@ -41,6 +44,10 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('auth/google/callback', 'googleCallback');
 });
 
+Route::post('forgot-password', ForgotPasswordController::class);
+Route::post('check-reset-password-token', CodeCheckController::class);
+Route::post('reset-password', ResetPasswordController::class);
+
 Route::middleware('auth:sanctum')
     ->controller(UserController::class)
     ->prefix('coordinator')
@@ -57,7 +64,7 @@ Route::middleware('auth:sanctum')
 
         Route::post('save-user', 'saveUser');
         Route::get('get-user/{id}', 'getUser');
-});
+    });
 
 Route::middleware('auth:sanctum')
     ->controller(CoordinatorController::class)
@@ -68,8 +75,7 @@ Route::middleware('auth:sanctum')
         Route::post('assign-intern', 'assignIntern');
 
         Route::get('get-assigned-interns', 'getAssignedInterns');
-
-});
+    });
 
 Route::middleware('auth:sanctum')
     ->controller(SupervisorController::class)
@@ -83,7 +89,7 @@ Route::middleware('auth:sanctum')
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('save-intern-evaluation', 'saveInternEvaluation');
-});
+    });
 
 Route::middleware('auth:sanctum')
     ->controller(RequirementController::class)
@@ -95,7 +101,7 @@ Route::middleware('auth:sanctum')
         Route::post('upload-requirement', 'uploadRequirement');
         Route::delete('delete-requirement/{id}', 'deleteRequirement');
         Route::get('download-file/{id}', 'downloadFile');
-});
+    });
 
 Route::middleware('auth:sanctum')
     ->controller(DailyTimeRecordController::class)
@@ -107,8 +113,7 @@ Route::middleware('auth:sanctum')
         Route::post('submit-daily-time-record', 'submitDailyTimeRecord');
         Route::put('update-daily-time-record/{id}', 'updateDailyTimeRecord');
         Route::delete('delete-daily-time-record/{id}', 'deleteDailyTimeRecord');
-
-});
+    });
 
 Route::middleware('auth:sanctum')
     ->controller(DetailedReportController::class)
@@ -118,8 +123,7 @@ Route::middleware('auth:sanctum')
         Route::post('submit-detailed-report', 'submitDetailedReport');
         Route::get('get-detailed-reports', 'getDetailedReports');
         Route::post('save-detailed-report', 'saveDetailedReport');
-
-});
+    });
 
 
 Route::middleware('auth:sanctum')
@@ -129,7 +133,14 @@ Route::middleware('auth:sanctum')
         Route::put('update-profile', 'updateProfile');
         Route::post('update-profile-picture', 'uploadProfilePicture');
         Route::post('update-e-signature', 'uploadESignature');
-});
+    });
+
+
+Route::middleware('auth:sanctum')
+    ->controller(ChangePasswordController::class)
+    ->group(function () {
+        Route::post('change-password', 'changePassword');
+    });
 
 Route::controller(UserController::class)->group(function () {
     Route::get('available-coordinator', 'availableCoordinator');
