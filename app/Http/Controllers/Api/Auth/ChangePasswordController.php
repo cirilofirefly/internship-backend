@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ChangePasswordRequest;
-use App\Http\Services\ChangePasswordService;
+use App\Services\ChangePasswordService;
 
 class ChangePasswordController extends Controller
 {

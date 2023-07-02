@@ -83,8 +83,7 @@ Route::middleware('auth:sanctum')
     ->group(function () {
         Route::get('get-assigned-interns', 'getAssignedInterns');
         Route::get('get-intern-daily-time-records', 'getInternDailyTimeRecords');
-        Route::get('get-intern-detailed-reports', 'getInternDetailedReports');
-        Route::post('validate-intern-daily-time-records', 'validateInternDailyTimeRecords');
+        Route::get('get-intern-detailed-reports', 'getInternDetailedReports');;
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-requirements', 'validateRequirments');
