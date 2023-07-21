@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\DailyTimeRecordController;
 use App\Http\Controllers\Api\DetailedReportController;
 use App\Http\Controllers\Api\InternController;
+use App\Http\Controllers\Api\RFIDRegistrationQueueController;
 use App\Http\Controllers\Api\SupervisorController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
@@ -75,6 +76,8 @@ Route::middleware('auth:sanctum')
         Route::post('assign-intern', 'assignIntern');
 
         Route::get('get-assigned-interns', 'getAssignedInterns');
+
+        Route::post('intern-rfid-registration', 'internRfidRegistration');
     });
 
 Route::middleware('auth:sanctum')
@@ -144,3 +147,6 @@ Route::middleware('auth:sanctum')
 Route::controller(UserController::class)->group(function () {
     Route::get('available-coordinator', 'availableCoordinator');
 });
+
+Route::get('register-rfid/{device_token}', [RFIDRegistrationQueueController::class, 'registerRFID']);
+Route::get('scan-rfid/{cardID}', [RFIDRegistrationQueueController::class, 'scanRFID']);

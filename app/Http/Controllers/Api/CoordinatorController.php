@@ -10,6 +10,20 @@ use Illuminate\Http\Request;
 
 class CoordinatorController extends Controller
 {
+
+    public function internRfidRegistration(Request $request)
+    {
+        $user = User::where('id', $request->id)->first();
+        
+        if($user) {
+            $user->card_id = base64_encode($request->cardId);
+            $user->save();
+            return response()->json(['success' => true], 200);
+        }
+
+        return response()->json(['message' => 'User not found.'], 404);
+    }
+
     public function getOffices()
     {
         return User::whereSupervisor()
