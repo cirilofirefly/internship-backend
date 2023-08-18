@@ -150,3 +150,9 @@ Route::controller(UserController::class)->group(function () {
 
 Route::get('register-rfid/{device_token}', [RFIDRegistrationQueueController::class, 'registerRFID']);
 Route::get('scan-rfid/{cardID}', [RFIDRegistrationQueueController::class, 'scanRFID']);
+
+Route::controller(DailyTimeRecordController::class)
+    ->prefix('intern')
+    ->group(function () {
+        Route::post('time-in-out', 'timeInOut');
+    });
