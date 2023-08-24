@@ -17,4 +17,11 @@ if (!function_exists('split_name')) {
     }
 }
 
+if (!function_exists('minutes_to_decimal')) {
+    function minutes_to_decimal($minutes = 0)
+    {
+        return (float) round($minutes / 60, 2);
+    }
+}
+
 ?>

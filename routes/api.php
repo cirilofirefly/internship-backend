@@ -9,12 +9,14 @@ use App\Http\Controllers\Api\CoordinatorController;
 use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\DailyTimeRecordController;
 use App\Http\Controllers\Api\DetailedReportController;
+use App\Http\Controllers\Api\Intern\DashboardController;
 use App\Http\Controllers\Api\InternController;
 use App\Http\Controllers\Api\RFIDRegistrationQueueController;
 use App\Http\Controllers\Api\SupervisorController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -156,3 +158,15 @@ Route::controller(DailyTimeRecordController::class)
     ->group(function () {
         Route::post('time-in-out', 'timeInOut');
     });
+
+Route::middleware('auth:sanctum')
+    ->controller(DashboardController::class)
+    ->prefix('intern')
+    ->group(function () {
+        Route::prefix('dashboard')->group(function () {
+            Route::get('get-dashboard-count', 'getDashboardCount');
+            Route::get('get-designation-info', 'getDesignationInfo');
+            Route::get('get-weekly-attendance', 'getWeeklyAttendance');
+        });
+    });
+

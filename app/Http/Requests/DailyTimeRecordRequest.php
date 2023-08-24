@@ -25,10 +25,10 @@ class DailyTimeRecordRequest extends FormRequest
     {
         return[
             'date'             => 'required',
-            'am_start_time'    => 'required',
-            'am_end_time'      => 'required',
-            'pm_start_time'    => 'required',
-            'pm_end_time'      => 'required',
+            'am_start_time'    => 'required|date_format:H:i',
+            'am_end_time'      => 'required|date_format:H:i|after:am_start_time',
+            'pm_start_time'    => 'required|date_format:H:i',
+            'pm_end_time'      => 'required|date_format:H:i|after:pm_start_time',
         ];
     }
 }
