@@ -31,6 +31,10 @@ class User extends Authenticatable
         self::SUPERVISOR,
     ];
 
+    const DTR_LOGIN_TYPES = [
+
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -52,7 +56,8 @@ class User extends Authenticatable
         'username',
         'profile_picture',
         'e_signature',
-        'status'
+        'status',
+        'dtr_time_count'
     ];
 
     protected $appends = ['full_name'];

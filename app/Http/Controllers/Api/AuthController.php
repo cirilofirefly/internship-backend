@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Redirect;
 use Laravel\Sanctum\PersonalAccessToken;
 use Laravel\Socialite\Contracts\User as ContractsUser;
@@ -27,6 +28,14 @@ class AuthController extends Controller
         return Socialite::driver($method)->redirect();
     }
 
+    public function forgotPassword(Request $request)
+    {
+        $status = Password::sendResetLink($request->only('email'));
+        abort_if($status === Password::INVALID_USER, 404, 'User not found');
+
+        return response()->json($status === Password::RESET_LINK_SENT, 200);
+    }
+
     public function facebookCallback()
     {
         $data = $this->registerOrLogin(Socialite::driver('facebook')->user());
@@ -34,11 +43,12 @@ class AuthController extends Controller
         return Redirect::away("http://localhost:8080/login?id=" . Crypt::encrypt($remember_token->id));
     }
 
-    public function getRememberToken(Request $request) {
+    public function getRememberToken(Request $request)
+    {
         try {
             $id = Crypt::decrypt($request->id);
             $remember_token = RememberToken::where('id', $id)->first();
-            if($remember_token) {
+            if ($remember_token) {
                 $data = [
                     'user'          => $remember_token->getUser,
                     'access_token'  => $remember_token->access_token
@@ -50,7 +60,7 @@ class AuthController extends Controller
             return response()->json($e);
         }
     }
-    
+
     public function googleCallback()
     {
         $data = $this->registerOrLogin(Socialite::driver('google')->user());
@@ -60,8 +70,8 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        if($this->authenticate($request->validated())) {
-            if(auth()->user()->user_type == User::INTERN && auth()->user()->status == User::DECLINED) 
+        if ($this->authenticate($request->validated())) {
+            if (auth()->user()->user_type == User::INTERN && auth()->user()->status == User::DECLINED)
                 return  response()->json(['declined' => true]);
             return response()->json($this->generateCredentials(auth()->user()->email), 200);
         }
@@ -89,7 +99,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function registerIntern(InternRegistration $request) 
+    public function registerIntern(InternRegistration $request)
     {
         $data = [
             'username'          => $request->student_number,
@@ -139,11 +149,11 @@ class AuthController extends Controller
     private function registerOrLogin(ContractsUser $socialUser)
     {
         $user = User::where('email', $socialUser->getEmail())->first();
-        if($user) {
+        if ($user) {
             $this->authenticate($this->userCredentials($user));
             return $this->generateCredentials($user->email);
         }
-        
+
         $name = split_name($socialUser->getName());
         $user = User::create([
             'first_name'    => $name['first_name'],
@@ -156,13 +166,13 @@ class AuthController extends Controller
         return $this->generateCredentials($user->email);
     }
 
-    private function storeRememberToken($data) 
+    private function storeRememberToken($data)
     {
-        
-       return RememberToken::create([
+
+        return RememberToken::create([
             'user_id'       => $data['user']['id'],
             'access_token'  => $data['access_token']
-       ]);
+        ]);
     }
 
     private function userCredentials(User $user)
