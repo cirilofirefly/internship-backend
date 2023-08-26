@@ -16,6 +16,8 @@ class SendCodeResetPassword extends Mailable implements ShouldQueue
 
     public $token;
     public $email;
+    public $full_name;
+
 
     /**
      * Create a new message instance.
@@ -26,6 +28,7 @@ class SendCodeResetPassword extends Mailable implements ShouldQueue
     {
         $this->token = $resetPassword->token;
         $this->email = $resetPassword->email;
+        $this->full_name = $resetPassword->full_name;
     }
 
     /**

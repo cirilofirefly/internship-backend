@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 use App\Mail\SendCodeResetPassword;
 use App\Models\ResetCodePassword;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -26,6 +27,7 @@ class ForgotPasswordController extends Controller
 
         // Create a new code
         $resetCodePassword = ResetCodePassword::create($data);
+        $resetCodePassword->full_name = User::firstWhere('email', $request->email)->full_name;
 
         // Send email to user
         Mail::to($request->email)->send(new SendCodeResetPassword($resetCodePassword));
