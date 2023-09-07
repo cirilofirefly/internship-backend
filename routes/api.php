@@ -170,3 +170,22 @@ Route::middleware('auth:sanctum')
         });
     });
 
+
+Route::middleware('auth:sanctum')
+    ->controller(DashboardController::class)
+    ->prefix('supervisor')
+    ->group(function () {
+        Route::prefix('dashboard')->group(function () {
+            Route::get('get-today-intern-daily-time-records', 'getTodayInternDailyTimeRecords');
+        });
+    });
+
+
+Route::middleware('auth:sanctum')
+    ->controller(DashboardController::class)
+    ->prefix('coordinator')
+    ->group(function () {
+        Route::prefix('dashboard')->group(function () {
+            Route::get('internship-stats', 'internshipStats');
+        });
+    });

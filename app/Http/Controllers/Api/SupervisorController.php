@@ -22,8 +22,7 @@ class SupervisorController extends Controller
                 'supervisor',
                 'assignedInterns' => function($query) {
                     $query->with('intern', function($query) {
-                        $query->select('id', 'username', 'first_name', 'last_name', 'middle_name', 'email')
-                            ->with('intern');
+                        $query->with('intern');
                     });
                 }
             ]);

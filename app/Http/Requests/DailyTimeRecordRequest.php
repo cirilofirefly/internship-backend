@@ -24,11 +24,13 @@ class DailyTimeRecordRequest extends FormRequest
     public function rules()
     {
         return[
-            'date'             => 'required',
-            'am_start_time'    => 'required|date_format:H:i',
-            'am_end_time'      => 'required|date_format:H:i|after:am_start_time',
-            'pm_start_time'    => 'required|date_format:H:i',
-            'pm_end_time'      => 'required|date_format:H:i|after:pm_start_time',
+            'date'                  => 'required',
+            'am_start_time'         => 'required|date_format:H:i',
+            'am_end_time'           => 'required|date_format:H:i|after:am_start_time',
+            'pm_start_time'         => 'required|date_format:H:i|after:am_end_time',
+            'pm_end_time'           => 'required|date_format:H:i|after:pm_start_time',
+            'overtime_start_time'   => 'required|date_format:H:i|after:pm_end_time',
+            'overtime_end_time'     => 'required|date_format:H:i|after:overtime_start_time',
         ];
     }
 }

@@ -52,10 +52,20 @@ class CoordinatorController extends Controller
 
     public function getApprovedInterns(Request $request)
     {
+        $onlyNotAssigned = isset($request->onlyNotAssigned);
+        $assigned_intern_ids = [];
+
+        if($onlyNotAssigned) {
+            $assigned_intern_ids = AssignedIntern::all()
+                ->distinct()
+                ->pluck('intern_user_id');
+        }
+
         return User::whereIntern()
             ->approved()
             ->with('intern')
             ->whereRelation('intern', 'coordinator_id', auth()->user()->id)
+            ->whereNotIn('id', $assigned_intern_ids)
             ->get();
     }
 

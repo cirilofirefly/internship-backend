@@ -54,6 +54,7 @@ class UserController extends Controller
         Supervisor::create([
             'host_establishment'    => $request->host_establishment,
             'designation'           => $request->designation,
+            'campus_type'           => $request->campus_type,
             'portal_id'             => $user->id,
             'coordinator_id'        => $request->user()->id
         ]);
@@ -80,7 +81,8 @@ class UserController extends Controller
         Supervisor::where('portal_id', $request->id)
             ->update([
                 'host_establishment'    => $request->host_establishment,
-                'designation'           => $request->designation
+                'designation'           => $request->designation,
+                'campus_type'           => $request->campus_type,
             ]);
 
         return response()->json($user, 200);

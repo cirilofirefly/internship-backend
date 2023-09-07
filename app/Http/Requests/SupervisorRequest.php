@@ -44,6 +44,7 @@ class SupervisorRequest extends FormRequest
             'civil_status'       => 'required',
             'nationality'        => 'required',
             'host_establishment' => 'required',
+            'campus_type'        => 'required',
             'designation'        => 'required',
             'coordinator_id'     => 'required',
         ];
@@ -62,6 +63,7 @@ class SupervisorRequest extends FormRequest
             'civil_status'       => 'required',
             'nationality'        => 'required',
             'host_establishment' => 'required',
+            'campus_type'        => 'required',
             'designation'        => 'required',
         ];
     }

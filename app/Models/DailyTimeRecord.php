@@ -16,8 +16,9 @@ class DailyTimeRecord extends Model
         'am_end_time',
         'pm_start_time',
         'pm_end_time',
+        'overtime_start_time',
+        'overtime_end_time',
         'description',
-        'overtime',
         'status',
         'user_id'
     ];
@@ -26,6 +27,12 @@ class DailyTimeRecord extends Model
     {
         return $this->belongsTo('App\Models\User', 'portal_id', 'id');
     }
+
+    public function intern()
+    {
+        return $this->belongsTo('App\Models\User', 'user_id', 'id');
+    }
+
 
     public function detailedReport()
     {
