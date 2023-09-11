@@ -16,9 +16,11 @@ return new class extends Migration
         Schema::table('daily_time_records', function (Blueprint $table) {
             $table->dropColumn('overtime');
             $table->string("overtime_start_time")
-                ->after('pm_start_time');
+                ->after('pm_start_time')
+                ->nullable();
             $table->string("overtime_end_time")
-                ->after('overtime_start_time');
+                ->after('overtime_start_time')
+                ->nullable();
         });
     }
 

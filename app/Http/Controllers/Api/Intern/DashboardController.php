@@ -40,8 +40,12 @@ class DashboardController extends Controller
 
     public function getDesignationInfo(Request $request)
     {
+        $supervisor_id = 0;
         $assignedIntern = AssignedIntern::where('intern_user_id', $request->user()->id)->first();
-        return User::where('id', $assignedIntern->supervisor_user_id)
+        if(!$assignedIntern)
+            return null;
+
+        return User::where('id', $supervisor_id)
             ->with('supervisor')
             ->first();
     }

@@ -45,7 +45,14 @@ class RequirementController extends Controller
 
     public function deleteRequirement($id)
     {
-        return Requirement::where('id', $id)->delete();
+
+        $requirment = Requirement::where('id', $id)->first();
+
+        if(Storage::exists($requirment->file)) {
+            Storage::delete($requirment->file);
+        }
+        
+        return $requirment->delete();
     }
 
     public function downloadFile($id)

@@ -29,8 +29,8 @@ class DailyTimeRecordRequest extends FormRequest
             'am_end_time'           => 'required|date_format:H:i|after:am_start_time',
             'pm_start_time'         => 'required|date_format:H:i|after:am_end_time',
             'pm_end_time'           => 'required|date_format:H:i|after:pm_start_time',
-            'overtime_start_time'   => 'required|date_format:H:i|after:pm_end_time',
-            'overtime_end_time'     => 'required|date_format:H:i|after:overtime_start_time',
+            'overtime_start_time'   => 'nullable|date_format:H:i|after:pm_end_time',
+            'overtime_end_time'     => 'nullable|date_format:H:i|after:overtime_start_time',
         ];
     }
 }

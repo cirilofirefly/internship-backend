@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\DailyTimeRecordController;
 use App\Http\Controllers\Api\DetailedReportController;
 use App\Http\Controllers\Api\Intern\DashboardController;
+use App\Http\Controllers\Api\Intern\DTRFileController;
 use App\Http\Controllers\Api\InternController;
 use App\Http\Controllers\Api\RFIDRegistrationQueueController;
 use App\Http\Controllers\Api\SupervisorController;
@@ -188,4 +189,17 @@ Route::middleware('auth:sanctum')
         Route::prefix('dashboard')->group(function () {
             Route::get('internship-stats', 'internshipStats');
         });
+    });
+
+
+Route::middleware('auth:sanctum')
+    ->controller(DTRFileController::class)
+    ->prefix('dtr-file')
+    ->group(function () {
+
+        Route::get('all', 'getDTRFiles');
+        Route::post('upload', 'uploadDTRFile');
+        Route::put('update/{id}', 'updateDTRFile');
+        Route::delete('delete/{id}', 'deleteDTRFile');
+
     });
