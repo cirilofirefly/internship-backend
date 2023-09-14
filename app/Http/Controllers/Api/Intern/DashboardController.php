@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api\Intern;
 
 use App\Http\Controllers\Controller;
 use App\Models\AssignedIntern;
+use App\Models\Coordinator;
 use App\Models\DailyTimeRecord;
+use App\Models\Intern;
+use App\Models\Requirement;
 use App\Models\Supervisor;
 use App\Models\User;
 use Carbon\Carbon;
@@ -76,7 +79,7 @@ class DashboardController extends Controller
             ->get();   
     }
 
-    public function internshipStats()
+    public function internshipStats(Request $request)
     {
         $ojt_count = User::whereIntern()
             ->where('status', User::APPROVED)
@@ -86,11 +89,29 @@ class DashboardController extends Controller
         $office_count = User::whereSupervisor()
             ->where('status', User::APPROVED)
             ->count();
+
+        $intern_requirement_submitted = 0;
+        $intern_requirement_did_not_submit = 0;
+
+        $interns = Intern::where('coordinator_id', $request->user()->id)
+            ->get()->pluck(['portal_id']);
+        
+        foreach($interns as $intern) {
+
+            $hasSubmitted = Requirement::where('user_id', $intern)->where('status', 'submitted')->exists();
             
+            if($hasSubmitted) {
+                $intern_requirement_submitted++;
+            } else {
+                $intern_requirement_did_not_submit++;
+            }
+        }
+
         return response()->json([
             'ojt_count' => $ojt_count,
-            'office_count' => $office_count
-
+            'office_count' => $office_count,
+            'intern_requirement_submitted' => $intern_requirement_submitted,
+            'intern_requirement_did_not_submit' => $intern_requirement_did_not_submit,
         ]);
     }
 }
