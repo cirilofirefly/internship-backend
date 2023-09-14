@@ -90,7 +90,7 @@ Route::middleware('auth:sanctum')
         Route::get('get-assigned-interns', 'getAssignedInterns');
         Route::get('get-intern-daily-time-records', 'getInternDailyTimeRecords');
         Route::get('get-intern-detailed-reports', 'getInternDetailedReports');;
-        Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
+        Route::post('validate-intern-daily-time-records', 'validateInternDailyTimeRecords');
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('save-intern-evaluation', 'saveInternEvaluation');

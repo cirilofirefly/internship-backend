@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AssignedIntern;
 use App\Models\Coordinator;
 use App\Models\DailyTimeRecord;
+use App\Models\DetailedReport;
 use App\Models\Intern;
 use App\Models\Requirement;
 use App\Models\Supervisor;
@@ -98,7 +99,9 @@ class DashboardController extends Controller
         
         foreach($interns as $intern) {
 
-            $hasSubmitted = Requirement::where('user_id', $intern)->where('status', 'submitted')->exists();
+            $hasSubmitted = DailyTimeRecord::where('user_id', $intern)
+                ->whereRelation('detailedReport', 'status', 'submitted')
+                ->exists();
             
             if($hasSubmitted) {
                 $intern_requirement_submitted++;
