@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssignInternRequest;
 use App\Models\AssignedIntern;
+use App\Models\Requirement;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -56,8 +57,8 @@ class CoordinatorController extends Controller
         $assigned_intern_ids = [];
 
         if($onlyNotAssigned) {
-            $assigned_intern_ids = AssignedIntern::all()
-                ->distinct()
+            $assigned_intern_ids = AssignedIntern::distinct()
+                ->get()
                 ->pluck('intern_user_id');
         }
 
@@ -69,8 +70,20 @@ class CoordinatorController extends Controller
             ->get();
     }
 
-    public function getAssignedInterns()
+    public function getAssignedInterns(Request $request)
     {
-        return AssignedIntern::with('intern')->get();
+        return AssignedIntern::with(['intern' => function($query) use($request) {
+                $query->whereHas('intern', function($query) use($request) {
+                    $query->where('coordinator_id', $request->user()->id);
+                });
+            }])
+            ->get();
+    }
+
+    public function validateRequirments(Request $request) 
+    {
+        return Requirement::whereIn('id', $request->ids)
+            ->where('status', 'submitted')
+            ->update(['status' => 'validated']);
     }
 }

@@ -79,7 +79,7 @@ Route::middleware('auth:sanctum')
         Route::post('assign-intern', 'assignIntern');
 
         Route::get('get-assigned-interns', 'getAssignedInterns');
-
+        Route::post('validate-requirements', 'validateRequirments');
         Route::post('intern-rfid-registration', 'internRfidRegistration');
     });
 
@@ -102,7 +102,7 @@ Route::middleware('auth:sanctum')
     ->group(function () {
         Route::get('get-requirements', 'getRequirements');
         Route::post('submit-requirements', 'submitRequirements');
-        Route::get('get-requirements-as-coordinator', 'getRequirementsAsCoordinator');
+        Route::get('get-requirements-as-supervisor', 'getRequirementsAsSupervisor');
         Route::post('upload-requirement', 'uploadRequirement');
         Route::delete('delete-requirement/{id}', 'deleteRequirement');
         Route::get('download-file/{id}', 'downloadFile');

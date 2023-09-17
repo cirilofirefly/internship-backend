@@ -18,9 +18,21 @@ class RequirementController extends Controller
             ->paginate(5);
     }
 
-    public function getRequirementsAsCoordinator(Request $request)
+    public function getRequirementsAsSupervisor(Request $request)
     {
+        $searchKeyword = isset($request->search) ?
+            $request->search :
+            '';
         return User::whereIntern()
+            // ->where(function($query) use($searchKeyword) {
+            //     $query->where('product_name', 'LIKE', '%' . $searchKeyword . '%');
+
+            //     $columns = ['product_code', 'place_location', 'remark'];
+
+            //     foreach ($columns as $column ) {
+            //         $query->orWhere($column, 'LIKE', '%' . $searchKeyword . '%');
+            //     }
+            // })
             ->with('requirements')
             ->has('requirements')
             ->paginate(5);

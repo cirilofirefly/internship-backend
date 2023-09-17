@@ -112,10 +112,23 @@ class UserController extends Controller
 
     public function getInterns(Request $request)
     {
+        $searchKeyword = isset($request->search) ?
+            $request->search :
+            '';
         return response()->json(
             User::whereIntern()
                 ->with('intern', function($query) use($request) {
                     $query->where('coordinator_id', $request->user()->id);
+                })
+                ->where(function($query) use($searchKeyword) {
+
+                    $query->where('first_name', 'LIKE', '%' . $searchKeyword . '%');
+                    $columns = ['middle_name', 'last_name', 'email', 'contact_number'];
+
+                    foreach ($columns as $column) {
+                        $query->orWhere($column, 'LIKE', '%' . $searchKeyword . '%');
+                    }
+                    
                 })
                 ->where(function($query) use($request) {
                     if($request->status != 'null')

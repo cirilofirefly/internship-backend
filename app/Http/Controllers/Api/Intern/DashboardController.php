@@ -4,16 +4,11 @@ namespace App\Http\Controllers\Api\Intern;
 
 use App\Http\Controllers\Controller;
 use App\Models\AssignedIntern;
-use App\Models\Coordinator;
 use App\Models\DailyTimeRecord;
-use App\Models\DetailedReport;
 use App\Models\Intern;
-use App\Models\Requirement;
-use App\Models\Supervisor;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -21,7 +16,12 @@ class DashboardController extends Controller
     public function getDashboardCount(Request $request)
     {
 
-        $rendered_time = DailyTimeRecord::where('user_id', $request->user()->id)
+
+        $user_id = isset($request->user_id) ? 
+            $request->user_id : 
+            $request->user()->id;
+
+        $rendered_time = DailyTimeRecord::where('user_id', $user_id)
             ->where('status', DailyTimeRecord::VALIDATED)
             ->get()
             ->reduce(function($carry, $dailyTimeRecord) {
@@ -36,6 +36,7 @@ class DashboardController extends Controller
         $absent = 0;
 
         return response()->json([
+            $user_id,
             'rendered_time'     => $rendered_time ?? 0,
             'remaining_time'    => $remaining_time,
             'absent'            => $absent,
@@ -44,12 +45,12 @@ class DashboardController extends Controller
 
     public function getDesignationInfo(Request $request)
     {
-        $supervisor_id = 0;
         $assignedIntern = AssignedIntern::where('intern_user_id', $request->user()->id)->first();
+
         if(!$assignedIntern)
             return null;
 
-        return User::where('id', $supervisor_id)
+        return User::where('id', $assignedIntern->supervisor_user_id)
             ->with('supervisor')
             ->first();
     }
