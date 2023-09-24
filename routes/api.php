@@ -94,6 +94,9 @@ Route::middleware('auth:sanctum')
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('save-intern-evaluation', 'saveInternEvaluation');
+        Route::get('get-intern-evaluation', 'getInternEvaluation');
+
+        
     });
 
 Route::middleware('auth:sanctum')

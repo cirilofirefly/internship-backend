@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
-use App\Models\InterJobPreference;
+use App\Models\InternJobPreference;
 use App\Models\Requirement;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -85,12 +85,26 @@ class SupervisorController extends Controller
 
     public function saveInternEvaluation(Request $request)
     {
-        return InterJobPreference::create([
+        InternJobPreference::updateOrCreate(
+            [
+                'evaluator_user_id' => $request->user()->id,
+                'intern_user_id'    => $request->user_id,
+            ],
+            [
             'evaluator_user_id' => $request->user()->id,
-            'inter_user_id'     => $request->user_id,
+            'intern_user_id'    => $request->user_id,
             'evaluation'        => $request->evaluation,
-            'job_preference'        => $request->job_preference,
+            'job_preference'    => $request->job_preference,
         ]);
+        
+        return response()->json(['message' => 'Evaluation saved.']);
+    }
+
+    public function getInternEvaluation(Request $request)
+    {
+        return InternJobPreference::where('evaluator_user_id', $request->user()->id)
+            ->where('intern_user_id', $request->user_id)
+            ->first();
     }
 
 }

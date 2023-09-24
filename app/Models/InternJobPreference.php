@@ -4,13 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class InterJobPreference extends Model
+class InternJobPreference extends Model
 {
     protected $table = "intern_job_preferences";
 
     protected $fillable = [
         'intern_user_id',
-        'supervisor_user_id',
+        'evaluator_user_id',
+        'evaluation',
+        'job_preference'
     ];
 
     public function supervisor()
