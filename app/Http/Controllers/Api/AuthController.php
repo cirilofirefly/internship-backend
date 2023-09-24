@@ -116,16 +116,21 @@ class AuthController extends Controller
             'contact_number'    => $request->contact_number,
             'user_type'         => User::INTERN,
         ];
+
         $user = User::create($data);
-        Intern::create([
-            'student_number'    => $request->student_number,
-            'year_level'        => $request->year_level,
-            'college'           => $request->college,
-            'program'           => $request->program,
-            'section'           => $request->section,
-            'portal_id'         => $user->id,
-            'coordinator_id'    => $request->coordinator_id
-        ]);
+
+        if($user) {
+            Intern::create([
+                'student_number'    => $request->student_number,
+                'year_level'        => $request->year_level,
+                'college'           => $request->college,
+                'program'           => $request->program,
+                'section'           => $request->section,
+                'portal_id'         => $user->id,
+                'coordinator_id'    => $request->coordinator_id
+            ]);
+        }
+
         return response()->json(['status' => 'success'], 200);
     }
 
