@@ -14,7 +14,14 @@ class RequirementController extends Controller
     public function getRequirements(Request $request)
     {
         $user_id = isset($request->from_supervisor) ? $request->user_id : $request->user()->id;
+        $searchKeyword = isset($request->search) ?
+            $request->search :
+            '';
         return Requirement::where('user_id', $user_id)
+            ->where(function($query) use($searchKeyword) {
+                $query->where('file_name', 'like', '%' . $searchKeyword . '%')
+                    ->orWhere('type', 'like', '%' . $searchKeyword . '%');
+            })
             ->paginate(5);
     }
 

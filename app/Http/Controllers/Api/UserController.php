@@ -92,9 +92,8 @@ class UserController extends Controller
     {
         return response()->json(
             User::whereSupervisor()
-                ->with('supervisor', function($query) use($request) {
-                    $query->where('coordinator_id', $request->user()->id);
-                })
+                ->with('supervisor')
+                ->whereRelation('supervisor', 'coordinator_id', $request->user()->id)
                 ->where(function($query) use($request) {
                     if($request->status != 'null')
                         return $query->where('status', $request->status);
@@ -115,27 +114,29 @@ class UserController extends Controller
         $searchKeyword = isset($request->search) ?
             $request->search :
             '';
-        return response()->json(
-            User::whereIntern()
-                ->with('intern', function($query) use($request) {
-                    $query->where('coordinator_id', $request->user()->id);
-                })
-                ->where(function($query) use($searchKeyword) {
 
-                    $query->where('first_name', 'LIKE', '%' . $searchKeyword . '%');
-                    $columns = ['middle_name', 'last_name', 'email', 'contact_number'];
+        $interns = User::whereIntern()
+            ->with('intern')
+       
+            // ->where(function($q) use($searchKeyword) {
 
-                    foreach ($columns as $column) {
-                        $query->orWhere($column, 'LIKE', '%' . $searchKeyword . '%');
-                    }
-                    
-                })
-                ->where(function($query) use($request) {
-                    if($request->status != 'null')
-                        return $query->where('status', $request->status);
-                })
-                ->paginate(5)
-        );
+            //     $q->where('first_name', 'LIKE', '%' . $searchKeyword . '%');
+            //     $columns = ['middle_name', 'last_name', 'email', 'contact_number'];
+
+            //     foreach ($columns as $column) {
+            //         $q->orWhere($column, 'LIKE', '%' . $searchKeyword . '%');
+            //     }
+                
+            // })
+            
+            // ->when($request->status != 'null', function($q) use($request) {
+            //     return $q->orWhere('status', $request->status);
+            // })
+            ->whereRelation('intern', 'coordinator_id', $request->user()->id)
+            // ->orWhereRelation('intern', 'student_number', 'like', '%' . $searchKeyword . '%')
+            ->paginate(5);
+
+        return response()->json($interns);
     }
 
     public function approveIntern(Request $request)

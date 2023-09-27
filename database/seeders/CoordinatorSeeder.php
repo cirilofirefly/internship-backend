@@ -18,15 +18,15 @@ class CoordinatorSeeder extends Seeder
     public function run()
     {
         $user = User::create([
-            'first_name'        => 'Mark Lester',
-            'last_name'         => 'Laurente',
+            'first_name'        => 'Catto Mark',
+            'last_name'         => 'Chou',
             'user_type'         => User::COORDINATOR,
             'middle_name'       => '',
             'birthday'          => '1999-29-09',
             'nationality'       => 'N/A',
             'civil_status'      => 'N/A',
             'contact_number'    => 'N/A',
-            'email'             => 'mark.laurente@lnu.edu.ph',
+            'email'             => 'catto.chou@lnu.edu.ph',
             'gender'            => 'male',
             'password'          => 'Test12345',
             'suffix'            => '',
