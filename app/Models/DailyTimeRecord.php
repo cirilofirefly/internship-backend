@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DailyTimeRecord extends Model
 {
     const VALIDATED = 'validated';
-    const TOTAL_HOURS = 648;
+    const TOTAL_HOURS = 486;
 
     protected $table = 'daily_time_records';
     protected $fillable = [

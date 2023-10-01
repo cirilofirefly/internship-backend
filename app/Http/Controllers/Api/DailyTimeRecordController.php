@@ -17,17 +17,17 @@ class DailyTimeRecordController extends Controller
         $user = User::select(
                 'users.id', 
                 'users.first_name', 
-                'users.last_name', 
+                'users.last_name',
+                'users.dtr_time_count',
                 'interns.student_number as student_number'
             )
             ->whereIntern()
             ->leftJoin('interns', 'users.id', '=', 'interns.portal_id')
-            ->where('card_id', base64_encode($request->cardId))
+            ->where('card_id', base64_encode($request->card_id))
             ->first();
 
         if ($user) {
-            $this->checkDTRCount($user);
-            return response()->json($user, 200);
+            return response()->json($this->checkDTRCount($user), 200);
         }
 
         return response()->json(['message' => 'Card not recognized'], 404);
@@ -69,14 +69,72 @@ class DailyTimeRecordController extends Controller
 
     private function checkDTRCount(User $user)
     {
+
+
         $user->increment('dtr_time_count', 1);
 
-        switch($user->dtr_time_count) {
-            case 4:
-                $user->dtr_time_count = 0;
-                $user->save();
+        $checkName = 'default';
 
-                break;
+        $dailyTimeRecord = DailyTimeRecord::whereDate('date', \Carbon\Carbon::now())
+            ->where('user_id', $user->id)->first();
+
+        if(!$dailyTimeRecord) {
+            $dailyTimeRecord = DailyTimeRecord::create([
+                'date'                  => \Carbon\Carbon::now()->toDateString(),
+                'am_start_time'         => '',
+                'am_end_time'           => '',
+                'pm_start_time'         => '',
+                'pm_end_time'           => '',
+                'overtime_start_time'   => '',
+                'overtime_end_time'     => '',
+                'description'           => '',
+                'status'                => 'default',
+                'user_id'               => $user->id
+            ]);
         }
+
+        $currentTime = \Carbon\Carbon::now()->format('H:i');
+
+        if($user->dtr_time_count >= 4) {
+
+            $dailyTimeRecord->pm_end_time = $currentTime;
+            $dailyTimeRecord->save();
+            $checkName = 'PM Time Out';
+
+            $user->dtr_time_count = 0;
+            $user->save();
+
+            return $this->checkInReponse($user, $currentTime, $checkName);
+
+        } else {
+
+            switch($user->dtr_time_count) {
+                case 1:
+                    $checkName = 'AM Time In';
+                    $dailyTimeRecord->am_start_time = $currentTime;
+                    break;
+                case 2:
+                    $checkName = 'AM Time Out';
+                    $dailyTimeRecord->am_end_time = $currentTime;
+                    break;
+                case 3:
+                    $checkName = 'PM Time In';
+                    $dailyTimeRecord->pm_start_time = $currentTime;
+                    break;
+            }
+
+            $dailyTimeRecord->save();
+        }
+
+        return $this->checkInReponse($user, $currentTime, $checkName);
+    }
+
+    private function checkInReponse($user, $currentTime, $checkName)
+    {
+        return [
+            'user'          => $user, 
+            'current_time'  => $currentTime, 
+            'check_name'    => $checkName
+        ];
     }
 }
