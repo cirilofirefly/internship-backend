@@ -111,30 +111,22 @@ class UserController extends Controller
 
     public function getInterns(Request $request)
     {
-        $searchKeyword = isset($request->search) ?
-            $request->search :
-            '';
+        $searchKeyword = isset($request->search) ? $request->search : '';
 
         $interns = User::whereIntern()
-            ->with('intern')
-       
-            // ->where(function($q) use($searchKeyword) {
-
-            //     $q->where('first_name', 'LIKE', '%' . $searchKeyword . '%');
-            //     $columns = ['middle_name', 'last_name', 'email', 'contact_number'];
-
-            //     foreach ($columns as $column) {
-            //         $q->orWhere($column, 'LIKE', '%' . $searchKeyword . '%');
-            //     }
-                
-            // })
-            
-            // ->when($request->status != 'null', function($q) use($request) {
-            //     return $q->orWhere('status', $request->status);
-            // })
-            ->whereRelation('intern', 'coordinator_id', $request->user()->id)
-            // ->orWhereRelation('intern', 'student_number', 'like', '%' . $searchKeyword . '%')
-            ->paginate(5);
+                ->when($request->status !== 'null', function($q) use($request) {
+                    return $q->where('status', $request->status);
+                })
+                ->where(function($query) use($searchKeyword) {
+                    $query->where('first_name', 'LIKE', "%{$searchKeyword}%")
+                        ->orWhere('middle_name', 'LIKE', "%{$searchKeyword}%")
+                        ->orWhere('last_name' , 'LIKE', "%{$searchKeyword}%");
+                })
+                ->with(['intern' => function($query) use($searchKeyword) {
+                    $query->orWhere('student_number', 'LIKE', "%{$searchKeyword}%");
+                }])
+                ->whereRelation('intern', 'coordinator_id', $request->user()->id)
+                ->paginate(5);
 
         return response()->json($interns);
     }
