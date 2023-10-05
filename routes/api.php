@@ -78,6 +78,7 @@ Route::middleware('auth:sanctum')
         Route::get('get-approved-interns', 'getApprovedInterns');
         Route::post('assign-intern', 'assignIntern');
 
+        Route::get('get-intern-evaluation', 'getInternEvaluation');
         Route::get('get-assigned-interns', 'getAssignedInterns');
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('intern-rfid-registration', 'internRfidRegistration');

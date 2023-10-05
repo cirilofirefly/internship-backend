@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssignInternRequest;
 use App\Models\AssignedIntern;
+use App\Models\InternJobPreference;
 use App\Models\Requirement;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -64,7 +65,6 @@ class CoordinatorController extends Controller
 
         return User::whereIntern()
             ->approved()
-            ->with('intern')
             ->whereRelation('intern', 'coordinator_id', auth()->user()->id)
             ->whereNotIn('id', $assigned_intern_ids)
             ->get();
@@ -73,7 +73,9 @@ class CoordinatorController extends Controller
     public function getAssignedInterns(Request $request)
     {
         return AssignedIntern::with(['intern' => function($query) use($request) {
-                $query->whereHas('intern', function($query) use($request) {
+                $query
+                    ->with('intern')
+                    ->whereHas('intern', function($query) use($request) {
                     $query->where('coordinator_id', $request->user()->id);
                 });
             }])
@@ -85,5 +87,11 @@ class CoordinatorController extends Controller
         return Requirement::whereIn('id', $request->ids)
             ->where('status', 'submitted')
             ->update(['status' => 'validated']);
+    }
+
+    public function getInternEvaluation(Request $request)
+    {
+        return InternJobPreference::where('intern_user_id', $request->user_id)
+            ->first();
     }
 }
