@@ -13,9 +13,11 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function availableCoordinator()
+    public function availableCoordinator(Request $request)
     {
-        return User::where('user_type', User::COORDINATOR)->get();
+        return User::where('user_type', User::COORDINATOR)
+            ->whereRelation('coordinator', 'program', '=', $request->program)
+            ->get();
     }
 
     public function saveUser(UserRequest $request)

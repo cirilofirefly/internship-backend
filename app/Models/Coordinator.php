@@ -8,6 +8,7 @@ class Coordinator extends Model
 {
     protected $fillable = [
         'portal_id',
+        'program'
     ];
 
     public function user()
