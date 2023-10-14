@@ -94,7 +94,6 @@ class SupervisorController extends Controller
             'evaluator_user_id' => $request->user()->id,
             'intern_user_id'    => $request->user_id,
             'evaluation'        => $request->evaluation,
-            'job_preference'    => $request->job_preference,
         ]);
         
         return response()->json(['message' => 'Evaluation saved.']);
