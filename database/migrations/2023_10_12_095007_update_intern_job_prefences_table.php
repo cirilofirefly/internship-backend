@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('intern_job_preferences',function (Blueprint $table){
             $table->dropColumn("job_preference");
-            $table->longText('evaluation');
+            // $table->longText('evaluation');
         });
     }
 
@@ -27,7 +27,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('intern_job_preferences',function (Blueprint $table){
-            $table->dropColumn("evaluation");
+            // $table->dropColumn("evaluation");
             $table->string('job_preference');
         });
     }
