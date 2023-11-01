@@ -12,6 +12,7 @@ services:
    image: mysql:5.7
    container_name: lnu-internship-db
    restart: unless-stopped
+   tty: true
    environment:
      MYSQL_DATABASE: ${DB_DATABASE}
      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
@@ -20,7 +21,10 @@ services:
      SERVICE_TAGS: dev
      SERVICE_NAME: mysql
    volumes:
+     - dbdata:/var/lib/mysql/
      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+   ports:
+     - "3306:3306"
    networks:
      - lnu-internship
 
@@ -65,3 +69,7 @@ services:
 networks:
   lnu-internship:
     driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
