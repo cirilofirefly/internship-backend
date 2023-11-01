@@ -91,10 +91,11 @@ class SupervisorController extends Controller
                 'intern_user_id'    => $request->user_id,
             ],
             [
-            'evaluator_user_id' => $request->user()->id,
-            'intern_user_id'    => $request->user_id,
-            'evaluation'        => $request->evaluation,
-        ]);
+                'evaluator_user_id' => $request->user()->id,
+                'intern_user_id'    => $request->user_id,
+                'evaluation'        => $request->evaluation,
+            ]
+        );
         
         return response()->json(['message' => 'Evaluation saved.']);
     }
