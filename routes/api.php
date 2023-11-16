@@ -97,6 +97,8 @@ Route::middleware('auth:sanctum')
         Route::post('save-intern-evaluation', 'saveInternEvaluation');
         Route::get('get-intern-evaluation', 'getInternEvaluation');
 
+        Route::get('get-ojt-working-days', 'getOJTWorkingDays');
+        Route::put('update-ojt-working-day', 'updateOJTWorkingDay');
         
     });
 

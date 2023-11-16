@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
 use App\Models\InternJobPreference;
+use App\Models\OJTCalendar;
 use App\Models\Requirement;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -105,6 +107,23 @@ class SupervisorController extends Controller
         return InternJobPreference::where('evaluator_user_id', $request->user()->id)
             ->where('intern_user_id', $request->user_id)
             ->first();
+    }
+
+    public function getOJTWorkingDays(Request $request)
+    {
+        return OJTCalendar::whereBetween('date',[$request->start, $request->end])
+            ->where('supervisor_id', $request->user()->id)
+            ->get();
+    }
+
+    public function updateOJTWorkingDay(Request $request)
+    {
+        return OJTCalendar::where('id', $request->id)
+            ->update([
+                'title'          => $request->is_working_day ? 'Working Day' : 'Non-working day',
+                'note'           => $request->note,
+                'is_working_day' => $request->is_working_day
+            ]);
     }
 
 }
