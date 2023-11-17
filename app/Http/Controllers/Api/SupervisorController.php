@@ -113,8 +113,11 @@ class SupervisorController extends Controller
 
     public function getOJTWorkingDays(Request $request)
     {
+
+        $has_working_period = !is_null($request->user()->supervisor->working_day_start) && !is_null($request->user()->supervisor->working_day_end);
+
         return response()->json([
-            'has_working_period'    => true,
+            'has_working_period'    => $has_working_period,
             'ojt_calendar'          => OJTCalendar::whereBetween('date',[$request->start, $request->end])
                 ->where('supervisor_id', $request->user()->id)
                 ->get()

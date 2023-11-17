@@ -7,6 +7,7 @@ use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
 use App\Models\Intern;
 use App\Models\OJTCalendar;
+use App\Models\Supervisor;
 use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
@@ -40,29 +41,34 @@ class DashboardController extends Controller
 
         if($assigned_intern) {
             
-            $ojt_calendars = OJTCalendar::where('supervisor_id', $assigned_intern->supervisor_user_id)
-                ->whereBetween('date', [
-                    Carbon::now()->subMonth(3)->format('Y-m-d'), 
-                    Carbon::now()->subDay(1)->format('Y-m-d')
-                ])
-                ->where('is_working_day', true)
-                ->get();
+            $supervisor = Supervisor::where('portal_id', $assigned_intern->supervisor_user_id)->first();
 
-            foreach($ojt_calendars as $ojt_calendar) {
+            if(!is_null($supervisor->working_day_start) && !is_null($supervisor->working_day_end)) {
 
-                $dtr = DailyTimeRecord::where('user_id', $user_id)
-                    ->where('date', $ojt_calendar->date)
+                $ojt_calendars = OJTCalendar::where('supervisor_id', $supervisor->portal_id)
+                    ->whereBetween('date', [
+                        $supervisor->working_day_start,
+                        Carbon::now()->subDay(1)->format('Y-m-d')
+                    ])
+                    ->where('is_working_day', true)
                     ->get();
 
-                if($dtr->count() === 0) {
-                    $absent++;
-                }
+                foreach($ojt_calendars as $ojt_calendar) {
 
+                    $dtr = DailyTimeRecord::where('user_id', $user_id)
+                        ->where('date', $ojt_calendar->date)
+                        ->get();
+
+                    if($dtr->count() === 0) {
+                        $absent++;
+                    }
+
+                }
             }
         }
 
         return response()->json([
-            $user_id,
+            $supervisor,
             'rendered_time'     => $rendered_time ?? 0,
             'remaining_time'    => $remaining_time,
             'absent'            => $absent,

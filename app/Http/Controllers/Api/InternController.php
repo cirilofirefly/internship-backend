@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssignedIntern;
+use App\Models\OJTCalendar;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,5 +22,21 @@ class InternController extends Controller
     public function getInternCookie(Request $request)
     {
         return $request->cookie('data');
+    }
+
+
+    public function getOJTWorkingDays(Request $request)
+    {
+
+        $assigned_intern = AssignedIntern::where('intern_user_id', $request->user()->id)
+            ->first();
+
+        if($assigned_intern) {
+            return OJTCalendar::whereBetween('date',[$request->start, $request->end])
+                ->where('supervisor_id', $assigned_intern->supervisor_user_id)
+                ->get();
+        }
+
+        return response()->json([]);
     }
 }
