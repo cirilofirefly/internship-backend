@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
 use App\Models\Intern;
+use App\Models\OJTCalendar;
 use App\Models\User;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -15,7 +17,6 @@ class DashboardController extends Controller
 
     public function getDashboardCount(Request $request)
     {
-
 
         $user_id = isset($request->user_id) ? 
             $request->user_id : 
@@ -33,7 +34,32 @@ class DashboardController extends Controller
             });
 
         $remaining_time = DailyTimeRecord::TOTAL_HOURS - $rendered_time;
+        $assigned_intern = AssignedIntern::where('intern_user_id', $user_id)->first();
+        
         $absent = 0;
+
+        if($assigned_intern) {
+            
+            $ojt_calendars = OJTCalendar::where('supervisor_id', $assigned_intern->supervisor_user_id)
+                ->whereBetween('date', [
+                    Carbon::now()->subMonth(3)->format('Y-m-d'), 
+                    Carbon::now()->subDay(1)->format('Y-m-d')
+                ])
+                ->where('is_working_day', true)
+                ->get();
+
+            foreach($ojt_calendars as $ojt_calendar) {
+
+                $dtr = DailyTimeRecord::where('user_id', $user_id)
+                    ->where('date', $ojt_calendar->date)
+                    ->get();
+
+                if($dtr->count() === 0) {
+                    $absent++;
+                }
+
+            }
+        }
 
         return response()->json([
             $user_id,

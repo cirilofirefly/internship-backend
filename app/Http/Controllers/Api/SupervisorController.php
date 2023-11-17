@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\WorkingDayPeriodRequest;
 use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
 use App\Models\InternJobPreference;
 use App\Models\OJTCalendar;
 use App\Models\Requirement;
+use App\Models\Supervisor;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -111,9 +113,12 @@ class SupervisorController extends Controller
 
     public function getOJTWorkingDays(Request $request)
     {
-        return OJTCalendar::whereBetween('date',[$request->start, $request->end])
-            ->where('supervisor_id', $request->user()->id)
-            ->get();
+        return response()->json([
+            'has_working_period'    => true,
+            'ojt_calendar'          => OJTCalendar::whereBetween('date',[$request->start, $request->end])
+                ->where('supervisor_id', $request->user()->id)
+                ->get()
+        ]);
     }
 
     public function updateOJTWorkingDay(Request $request)
@@ -124,6 +129,14 @@ class SupervisorController extends Controller
                 'note'           => $request->note,
                 'is_working_day' => $request->is_working_day
             ]);
+    }
+
+    public function updateWorkingPeriod(WorkingDayPeriodRequest $request)
+    {
+        return Supervisor::where('portal_id', $request->user()->id)->update([
+            'working_day_start' => $request->start,
+            'working_day_end'   => $request->end,
+        ]);
     }
 
 }

@@ -99,6 +99,8 @@ Route::middleware('auth:sanctum')
 
         Route::get('get-ojt-working-days', 'getOJTWorkingDays');
         Route::put('update-ojt-working-day', 'updateOJTWorkingDay');
+
+        Route::put('update-working-period', 'updateWorkingPeriod');
         
     });
 

@@ -10,6 +10,8 @@ class Supervisor extends Model
         'designation',
         'host_establishment',
         'campus_type',
+        'working_day_start',
+        'working_day_end',
         'portal_id',
         'coordinator_id'
     ];
