@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\WorkingDayPeriodRequest;
 use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
 use App\Models\InternJobPreference;
+use App\Models\OJTCalendar;
 use App\Models\Requirement;
+use App\Models\Supervisor;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -105,6 +109,37 @@ class SupervisorController extends Controller
         return InternJobPreference::where('evaluator_user_id', $request->user()->id)
             ->where('intern_user_id', $request->user_id)
             ->first();
+    }
+
+    public function getOJTWorkingDays(Request $request)
+    {
+
+        $has_working_period = !is_null($request->user()->supervisor->working_day_start) && !is_null($request->user()->supervisor->working_day_end);
+
+        return response()->json([
+            'has_working_period'    => $has_working_period,
+            'ojt_calendar'          => OJTCalendar::whereBetween('date',[$request->start, $request->end])
+                ->where('supervisor_id', $request->user()->id)
+                ->get()
+        ]);
+    }
+
+    public function updateOJTWorkingDay(Request $request)
+    {
+        return OJTCalendar::where('id', $request->id)
+            ->update([
+                'title'          => $request->is_working_day ? 'Working Day' : 'Non-working day',
+                'note'           => $request->note,
+                'is_working_day' => $request->is_working_day
+            ]);
+    }
+
+    public function updateWorkingPeriod(WorkingDayPeriodRequest $request)
+    {
+        return Supervisor::where('portal_id', $request->user()->id)->update([
+            'working_day_start' => $request->start,
+            'working_day_end'   => $request->end,
+        ]);
     }
 
 }

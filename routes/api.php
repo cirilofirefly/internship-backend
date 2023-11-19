@@ -96,8 +96,9 @@ Route::middleware('auth:sanctum')
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('save-intern-evaluation', 'saveInternEvaluation');
         Route::get('get-intern-evaluation', 'getInternEvaluation');
-
-        
+        Route::get('get-ojt-working-days', 'getOJTWorkingDays');
+        Route::put('update-ojt-working-day', 'updateOJTWorkingDay');
+        Route::put('update-working-period', 'updateWorkingPeriod');
     });
 
 Route::middleware('auth:sanctum')
@@ -175,6 +176,13 @@ Route::middleware('auth:sanctum')
         });
     });
 
+
+Route::middleware('auth:sanctum')
+    ->controller(InternController::class)
+    ->prefix('intern')
+    ->group(function () {
+        Route::get('get-ojt-working-days', 'getOJTWorkingDays');
+    });
 
 Route::middleware('auth:sanctum')
     ->controller(DashboardController::class)
