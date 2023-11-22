@@ -115,19 +115,23 @@ class DashboardController extends Controller
 
     public function internshipStats(Request $request)
     {
+
+        $coordinator_id = $request->user()->id;
+
         $ojt_count = User::whereIntern()
+            ->whereRelation('intern', 'coordinator_id', $coordinator_id)
             ->where('status', User::APPROVED)
             ->count();
 
-
         $office_count = User::whereSupervisor()
+            ->whereRelation('supervisor', 'coordinator_id', $coordinator_id)
             ->where('status', User::APPROVED)
             ->count();
 
         $intern_requirement_submitted = 0;
         $intern_requirement_did_not_submit = 0;
 
-        $interns = Intern::where('coordinator_id', $request->user()->id)
+        $interns = Intern::where('coordinator_id', $coordinator_id)
             ->get()->pluck(['portal_id']);
         
         foreach($interns as $intern) {
@@ -144,9 +148,9 @@ class DashboardController extends Controller
         }
 
         return response()->json([
-            'ojt_count' => $ojt_count,
-            'office_count' => $office_count,
-            'intern_requirement_submitted' => $intern_requirement_submitted,
+            'ojt_count'                         => $ojt_count,
+            'office_count'                      => $office_count,
+            'intern_requirement_submitted'      => $intern_requirement_submitted,
             'intern_requirement_did_not_submit' => $intern_requirement_did_not_submit,
         ]);
     }

@@ -8,6 +8,7 @@ use App\Http\Requests\DetailedReportRequest;
 use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
+use App\Models\Intern;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,8 +41,11 @@ class DetailedReportController extends Controller
         ], $request->validated());
     }
 
-    public function getOffices()
+    public function getOffices(Request $request)
     {
+
+        $intern = Intern::where('portal_id', $request->user()->id)->first();
+        
         return User::whereSupervisor()
             ->select('id', 'first_name', 'last_name', 'middle_name')
             ->with([
@@ -53,6 +57,7 @@ class DetailedReportController extends Controller
                     });
                 }
             ])
+            ->whereRelation('supervisor', 'coordinator_id', $intern->coordinator_id)
             ->paginate(5);
     }
 

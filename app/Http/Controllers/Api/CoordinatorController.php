@@ -65,6 +65,7 @@ class CoordinatorController extends Controller
 
         return User::whereIntern()
             ->approved()
+            ->with('intern')
             ->whereRelation('intern', 'coordinator_id', auth()->user()->id)
             ->whereNotIn('id', $assigned_intern_ids)
             ->get();
