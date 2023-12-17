@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\ScanRFIDEvent;
 use App\Http\Controllers\Api\Auth\ChangePasswordController;
 use App\Http\Controllers\Api\Auth\CodeCheckController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
@@ -29,6 +30,11 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('scan-rfid', function(Request $request) {
+    event(new ScanRFIDEvent($request->cardID));
+    return $request->cardID;
+});
 
 Route::get('store-intern-id',  [InternController::class, 'setInternUserIdAsCookie']);
 Route::get('get-intern-id',  function (Request $request) {
