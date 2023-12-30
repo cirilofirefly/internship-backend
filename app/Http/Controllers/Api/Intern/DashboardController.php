@@ -7,6 +7,7 @@ use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
 use App\Models\Intern;
 use App\Models\OJTCalendar;
+use App\Models\Requirement;
 use App\Models\Supervisor;
 use App\Models\User;
 use Carbon\Carbon;
@@ -30,8 +31,11 @@ class DashboardController extends Controller
 
                 $amTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->am_start_time, $dailyTimeRecord->am_end_time);
                 $pmTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->pm_start_time, $dailyTimeRecord->pm_end_time);
-
-                return $carry + ($amTotalHours + $pmTotalHours);
+                $overtimeTotalHours = 0;
+                if(!is_null($dailyTimeRecord->overtime_start_time) || !is_null($dailyTimeRecord->overtime_end_time) ) {
+                    $overtimeTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->overtime_start_time, $dailyTimeRecord->overtime_end_time);
+                }
+                return $carry + (($amTotalHours + $pmTotalHours) + $overtimeTotalHours);
             });
 
         $remaining_time = DailyTimeRecord::TOTAL_HOURS - $rendered_time;
@@ -102,15 +106,28 @@ class DashboardController extends Controller
         return round($end_time->diffInMinutes($start_time, true) / 60, 2);
     }
 
-    public function getTodayInternDailyTimeRecords(Request $request)
+    public function getMonthlyInternDailyTimeRecords(Request $request)
     {
         $intern_ids = AssignedIntern::where('supervisor_user_id', $request->user()->id)
             ->pluck('intern_user_id');
 
         return DailyTimeRecord::with('intern')
             ->whereIn('user_id', $intern_ids)
-            ->whereDate('created_at', Carbon::today())
+            ->whereBetween('date', [ 
+                Carbon::now()->startOfMonth()->format('Y-m-d'),
+                Carbon::now()->endOfMonth()->format('Y-m-d')
+            ])
             ->get();   
+    }
+
+    public function getInternRequirements(Request $request)
+    {
+        $intern_ids = AssignedIntern::where('supervisor_user_id', $request->user()->id)
+            ->pluck('intern_user_id');
+
+        return Requirement::with('user')
+            ->whereIn('user_id', $intern_ids)
+            ->get();  
     }
 
     public function internshipStats(Request $request)

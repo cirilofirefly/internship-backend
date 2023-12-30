@@ -31,7 +31,8 @@ class RequirementRequest extends FormRequest
                 Requirement::RESUME . ',' . 
                 Requirement::COMPANY_PROFILE . ','  . 
                 Requirement::LETTER_OF_ENDORSEMENT . ',' . 
-                Requirement::MEMORANDUM_OF_AGREEMENT,
+                Requirement::MEMORANDUM_OF_AGREEMENT . ',' . 
+                Requirement::OTHERS,
 
             'file'              => "required|mimes:jpg,png,pdf,docx,doc",
         ];

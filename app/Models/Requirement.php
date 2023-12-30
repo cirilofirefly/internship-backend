@@ -11,6 +11,7 @@ class Requirement extends Model
     const COMPANY_PROFILE = 'company-profile';
     const LETTER_OF_ENDORSEMENT = 'letter-of-endorsement';
     const MEMORANDUM_OF_AGREEMENT = 'memorandum-of-agreement';
+    const OTHERS = 'others';
 
     protected $fillable = [
         'user_id',

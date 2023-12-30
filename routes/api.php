@@ -195,10 +195,10 @@ Route::middleware('auth:sanctum')
     ->prefix('supervisor')
     ->group(function () {
         Route::prefix('dashboard')->group(function () {
-            Route::get('get-today-intern-daily-time-records', 'getTodayInternDailyTimeRecords');
+            Route::get('get-monthly-intern-daily-time-records', 'getMonthlyInternDailyTimeRecords');
+            Route::get('get-intern-requirements', 'getInternRequirements');
         });
     });
-
 
 Route::middleware('auth:sanctum')
     ->controller(DashboardController::class)

@@ -106,9 +106,31 @@ class SupervisorController extends Controller
 
     public function getInternEvaluation(Request $request)
     {
-        return InternJobPreference::where('evaluator_user_id', $request->user()->id)
+        $rendered_time = DailyTimeRecord::where('user_id', $request->user_id)
+            ->where('status', DailyTimeRecord::VALIDATED)
+            ->get()
+            ->reduce(function($carry, $dailyTimeRecord) {
+
+                $amTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->am_start_time, $dailyTimeRecord->am_end_time);
+                $pmTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->pm_start_time, $dailyTimeRecord->pm_end_time);
+                $overtimeTotalHours = 0;
+
+                if(!is_null($dailyTimeRecord->overtime_start_time) || !is_null($dailyTimeRecord->overtime_end_time) ) {
+                    $overtimeTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->overtime_start_time, $dailyTimeRecord->overtime_end_time);
+                }
+                
+                return $carry + (($amTotalHours + $pmTotalHours) + $overtimeTotalHours);
+            });
+
+        $remaining_time = DailyTimeRecord::TOTAL_HOURS - $rendered_time;
+        $evaluation = InternJobPreference::where('evaluator_user_id', $request->user()->id)
             ->where('intern_user_id', $request->user_id)
             ->first();
+
+        return response()->json([
+            'evaluation'    => $evaluation,
+            'can_evaluate'  => $remaining_time >= DailyTimeRecord::TOTAL_HOURS
+        ]);
     }
 
     public function getOJTWorkingDays(Request $request)
@@ -140,6 +162,14 @@ class SupervisorController extends Controller
             'working_day_start' => $request->start,
             'working_day_end'   => $request->end,
         ]);
+    }
+
+    private function calculateTotalHours($date, $start_time, $end_time): float
+    {
+        $start_time = Carbon::parse($date . ' ' . $start_time);
+        $end_time = Carbon::parse($date . ' ' . $end_time);
+
+        return round($end_time->diffInMinutes($start_time, true) / 60, 2);
     }
 
 }
