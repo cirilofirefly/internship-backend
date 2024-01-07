@@ -9,6 +9,7 @@ use App\Http\Requests\UserRequest;
 use App\Models\Coordinator;
 use App\Models\Supervisor;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -36,19 +37,20 @@ class UserController extends Controller
 
     public function createSupervisor(SupervisorRequest $request)
     {
+
         $user = User::create([
             'username'          => $request->username,
             'email'             => $request->email,
             'password'          => $request->password,
             'first_name'        => $request->first_name,
             'last_name'         => $request->last_name,
-            'middle_name'       => $request->middle_name,
-            'suffix'            => $request->suffix,
-            'contact_number'    => $request->contact_number,
-            'birthday'          => $request->birthday,
-            'gender'            => $request->gender,
-            'nationality'       => $request->nationality,
-            'civil_status'      => $request->civil_status,
+            'middle_name'       => 'N/A',
+            'suffix'            => 'N/A',
+            'contact_number'    => 'N/A',
+            'birthday'          => Carbon::now()->format('Y-m-d'),
+            'gender'            => 'others',
+            'nationality'       => 'N/A',
+            'civil_status'      => 'N/A',
             'status'            => User::APPROVED,
             'user_type'         => User::SUPERVISOR,
         ]);
