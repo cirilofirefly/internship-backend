@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SupervisorRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UserRequest;
+use App\Models\AssignedIntern;
 use App\Models\Coordinator;
 use App\Models\Supervisor;
 use App\Models\User;
@@ -116,6 +117,7 @@ class UserController extends Controller
     public function getInterns(Request $request)
     {
         $searchKeyword = isset($request->search) ? $request->search : '';
+        $assign_filter = $request->assign_filter;
 
         $interns = User::whereIntern()
                 ->when($request->status !== 'null', function($q) use($request) {
@@ -129,10 +131,17 @@ class UserController extends Controller
                 ->with(['intern' => function($query) use($searchKeyword) {
                     $query->orWhere('student_number', 'LIKE', "%{$searchKeyword}%");
                 }])
-                ->whereRelation('intern', 'coordinator_id', $request->user()->id)
-                ->paginate(5);
+                ->when($assign_filter !== 'ALL', function($q) use($assign_filter) {
+                    
+                    if($assign_filter == 'assigned') {
+                        return $q->has('assignedIntern');
+                    }
 
-        return response()->json($interns);
+                    return $q->doesntHave('assignedIntern');
+                })
+                ->whereRelation('intern', 'coordinator_id', $request->user()->id);
+        
+        return response()->json($interns->paginate(5));
     }
 
     public function approveIntern(Request $request)
