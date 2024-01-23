@@ -115,7 +115,7 @@ class SupervisorController extends Controller
                 $pmTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->pm_start_time, $dailyTimeRecord->pm_end_time);
                 $overtimeTotalHours = 0;
 
-                if(!is_null($dailyTimeRecord->overtime_start_time) || !is_null($dailyTimeRecord->overtime_end_time) ) {
+                if(!is_null($dailyTimeRecord->overtime_start_time) && !is_null($dailyTimeRecord->overtime_end_time) ) {
                     $overtimeTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->overtime_start_time, $dailyTimeRecord->overtime_end_time);
                 }
                 
