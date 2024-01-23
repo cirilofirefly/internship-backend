@@ -122,14 +122,13 @@ class SupervisorController extends Controller
                 return $carry + (($amTotalHours + $pmTotalHours) + $overtimeTotalHours);
             });
 
-        $remaining_time = DailyTimeRecord::TOTAL_HOURS - $rendered_time;
         $evaluation = InternJobPreference::where('evaluator_user_id', $request->user()->id)
             ->where('intern_user_id', $request->user_id)
             ->first();
 
         return response()->json([
             'evaluation'    => $evaluation,
-            'can_evaluate'  => $remaining_time >= DailyTimeRecord::TOTAL_HOURS
+            'can_evaluate'  => $rendered_time >= DailyTimeRecord::TOTAL_HOURS
         ]);
     }
 
