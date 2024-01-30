@@ -142,25 +142,25 @@ class AuthEndpointTest extends TestCase
         $user = User::factory()->make(['user_type' => User::INTERN]);
 
         $data = [
-            'username'          => $student_number,
-            'password'          => 'password',
+            'username'              => $student_number,
+            'password'              => 'password',
             'password_confirmation' => 'password123',
-            'first_name'        => $user->first_name,
-            'last_name'         => $user->last_name,
-            'middle_name'       => $user->middle_name,
-            'suffix'            => $user->suffix,
-            'gender'            => 'male',
-            'birthday'          => now()->format('Y-m-d'),
-            'email'             => $user->email,
-            'nationality'       => $user->nationality,
-            'civil_status'      => $user->civil_status,
-            'contact_number'    => $user->contact_number,
-            'student_number'    => $student_number,
-            'year_level'        => '4th Year',
-            'college'           => 'College of Arts and Sciences',
-            'program'           => 'bsit',
-            'section'           => 'AI-41',
-            'coordinator_id'    => $coordinator->id
+            'first_name'            => $user->first_name,
+            'last_name'             => $user->last_name,
+            'middle_name'           => $user->middle_name,
+            'suffix'                => $user->suffix,
+            'gender'                => 'male',
+            'birthday'              => now()->format('Y-m-d'),
+            'email'                 => $user->email,
+            'nationality'           => $user->nationality,
+            'civil_status'          => $user->civil_status,
+            'contact_number'        => $user->contact_number,
+            'student_number'        => $student_number,
+            'year_level'            => '4th Year',
+            'college'               => 'College of Arts and Sciences',
+            'program'               => 'bsit',
+            'section'               => 'AI-41',
+            'coordinator_id'        => $coordinator->id
         ];
 
         $response = $this->post('/api/register-intern', $data);
