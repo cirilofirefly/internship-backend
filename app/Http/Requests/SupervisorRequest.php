@@ -17,7 +17,7 @@ class SupervisorRequest extends FormRequest
     {
         return true;
     }
-    
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,8 +25,8 @@ class SupervisorRequest extends FormRequest
      */
     public function rules()
     {
-        return $this->isMethod('POST') ? 
-            $this->postRule() : 
+        return $this->isMethod('POST') ?
+            $this->postRule() :
             $this->updateRule();
     }
 
@@ -35,7 +35,6 @@ class SupervisorRequest extends FormRequest
         return [
             'username'           => 'required|unique:users',
             'email'              => 'required|email|unique:users',
-            'password'           => 'bail|required|min:8|max:100|confirmed',
             'first_name'         => 'required|min:2|max:20',
             'last_name'          => 'required|min:2|max:20',
             'host_establishment' => 'required',
@@ -63,5 +62,18 @@ class SupervisorRequest extends FormRequest
         ];
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'username' => $this->generateUsername($this->first_name, $this->last_name),
+        ]);
+    }
+
+    private function generateUsername($first_name, $last_name)
+    {
+        $first_name = preg_replace("/^ /", '', preg_replace("/ +/", '_', $first_name));
+        $last_name = preg_replace("/^ /", '', preg_replace("/ +/", '_', $last_name));
+        return strtolower($first_name.'.'.$last_name) . now()->timestamp;
+    }
 
 }

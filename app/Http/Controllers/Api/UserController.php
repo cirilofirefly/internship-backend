@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SupervisorRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UserRequest;
+use App\Mail\CreatedSupervisor;
 use App\Models\AssignedIntern;
 use App\Models\Coordinator;
 use App\Models\Supervisor;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Mail;
+use Str;
 
 class UserController extends Controller
 {
@@ -27,44 +31,59 @@ class UserController extends Controller
         return User::updateOrCreate(
             [
                 'id' => $request->user_id
-            ], 
+            ],
             $request->except(
-                'user_id', 
+                'user_id',
                 'password_confirmation',
                 'edit_mode'
             )
-        );        
+        );
     }
 
     public function createSupervisor(SupervisorRequest $request)
     {
+        $password = Str::random(12);
 
-        $user = User::create([
-            'username'          => $request->username,
-            'email'             => $request->email,
-            'password'          => $request->password,
-            'first_name'        => $request->first_name,
-            'last_name'         => $request->last_name,
-            'middle_name'       => 'N/A',
-            'suffix'            => 'N/A',
-            'contact_number'    => 'N/A',
-            'birthday'          => Carbon::now()->format('Y-m-d'),
-            'gender'            => 'others',
-            'nationality'       => 'N/A',
-            'civil_status'      => 'N/A',
-            'status'            => User::APPROVED,
-            'user_type'         => User::SUPERVISOR,
-        ]);
+        try {
 
-        Supervisor::create([
-            'host_establishment'    => $request->host_establishment,
-            'designation'           => $request->designation,
-            'campus_type'           => $request->campus_type,
-            'portal_id'             => $user->id,
-            'coordinator_id'        => $request->user()->id
-        ]);
+            DB::beginTransaction();
 
-        return response()->json($user, 200);
+            $user = User::create([
+                'username'          => $request->username,
+                'email'             => $request->email,
+                'first_name'        => $request->first_name,
+                'last_name'         => $request->last_name,
+                'password'          => $password,
+                'middle_name'       => 'N/A',
+                'suffix'            => 'N/A',
+                'contact_number'    => 'N/A',
+                'birthday'          => Carbon::now()->format('Y-m-d'),
+                'gender'            => 'others',
+                'nationality'       => 'N/A',
+                'civil_status'      => 'N/A',
+                'status'            => User::APPROVED,
+                'user_type'         => User::SUPERVISOR,
+            ]);
+
+            Supervisor::create([
+                'host_establishment'    => $request->host_establishment,
+                'designation'           => $request->designation,
+                'campus_type'           => $request->campus_type,
+                'portal_id'             => $user->id,
+                'coordinator_id'        => $request->user()->id
+            ]);
+
+            DB::commit();
+
+            Mail::to($user->email)->queue(new CreatedSupervisor($password, $user));
+
+            return response()->json($user, 200);
+
+        } catch(\Exception $e) {
+            DB::rollBack();
+            return response()->json(['Creating supervisor failed: ' . $e->getMessage()], 500);
+        }
+
     }
 
     public function updateSupervisor(SupervisorRequest $request)
@@ -132,7 +151,7 @@ class UserController extends Controller
                     $query->orWhere('student_number', 'LIKE', "%{$searchKeyword}%");
                 }])
                 ->when($assign_filter !== 'ALL', function($q) use($assign_filter) {
-                    
+
                     if($assign_filter == 'assigned') {
                         return $q->has('assignedIntern');
                     }
@@ -140,7 +159,7 @@ class UserController extends Controller
                     return $q->doesntHave('assignedIntern');
                 })
                 ->whereRelation('intern', 'coordinator_id', $request->user()->id);
-        
+
         return response()->json($interns->paginate(5));
     }
 
@@ -172,7 +191,7 @@ class UserController extends Controller
             ->first();
     }
 
-    public function updateProfile(UpdateProfileRequest $request) 
+    public function updateProfile(UpdateProfileRequest $request)
     {
         $user = User::where('id', $request->id)->first();
         if($user) {
@@ -208,7 +227,7 @@ class UserController extends Controller
         }
     }
 
-    public function getProfileInfo(Request $request) 
+    public function getProfileInfo(Request $request)
     {
         $user = User::where('id', $request->user()->id)->first();
         return response()->json([
@@ -251,10 +270,9 @@ class UserController extends Controller
     private function getProfileDataByUserType($user)
     {
 
-        if($user->user_type == User::COORDINATOR) 
+        if($user->user_type == User::COORDINATOR)
             return Coordinator::where('portal_id', $user->id)->first();
         if($user->user_type == User::SUPERVISOR)
             return Supervisor::where('portal_id', $user->id)->first();
     }
-
 }
