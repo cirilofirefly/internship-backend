@@ -16,7 +16,7 @@ class CoordinatorController extends Controller
     public function internRfidRegistration(Request $request)
     {
         $user = User::where('id', $request->id)->first();
-        
+
         if($user) {
             $user->card_id = base64_encode($request->cardId);
             $user->save();
@@ -83,7 +83,7 @@ class CoordinatorController extends Controller
             ->get();
     }
 
-    public function validateRequirments(Request $request) 
+    public function validateRequirments(Request $request)
     {
         return Requirement::whereIn('id', $request->ids)
             ->where('status', 'submitted')
@@ -94,5 +94,23 @@ class CoordinatorController extends Controller
     {
         return InternJobPreference::where('intern_user_id', $request->user_id)
             ->first();
+    }
+
+    public function getNoSubmitStudents(Request $request)
+    {
+        $userIds = User::whereSupervisor()
+                ->whereRelation('supervisor', 'coordinator_id', $request->user()->id)
+                ->pluck('id');
+
+        $assigned_interns = AssignedIntern::whereIn('supervisor_user_id', $userIds)
+            ->with('dailyTimeRecords', 'intern')
+            ->get();
+
+        return $assigned_interns->filter(function($assigned_intern) {
+            $hasSubmission = count($assigned_intern->dailyTimeRecords->filter(function($dailyTimeRecord) {
+                return in_array($dailyTimeRecord->status, ['validated', 'submitted']);
+            })) > 0;
+            return count($assigned_intern->dailyTimeRecords) == 0 || !$hasSubmission;
+        });
     }
 }

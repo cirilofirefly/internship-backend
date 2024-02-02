@@ -31,6 +31,7 @@ class SendCodeResetPassword extends Mailable implements ShouldQueue
         $this->full_name = $resetPassword->full_name;
     }
 
+
     /**
      * Get the message envelope.
      *

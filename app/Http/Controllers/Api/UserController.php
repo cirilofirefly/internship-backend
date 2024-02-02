@@ -158,9 +158,12 @@ class UserController extends Controller
 
                     return $q->doesntHave('assignedIntern');
                 })
+                ->when($request->year != 'ALL', function($query) use($request) {
+                    $query->whereYear('created_at', $request->year);
+                })
                 ->whereRelation('intern', 'coordinator_id', $request->user()->id);
 
-        return response()->json($interns->paginate(5));
+        return response()->json($interns->paginate(10));
     }
 
     public function approveIntern(Request $request)

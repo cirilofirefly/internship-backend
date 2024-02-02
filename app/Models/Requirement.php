@@ -18,7 +18,8 @@ class Requirement extends Model
         'type',
         'file_name',
         'file',
-        'status'
+        'status',
+        'others_name'
     ];
 
     public function user()

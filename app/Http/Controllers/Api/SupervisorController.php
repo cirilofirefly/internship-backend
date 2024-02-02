@@ -35,6 +35,9 @@ class SupervisorController extends Controller
 
     public function getInternDailyTimeRecords(Request $request)
     {
+        $canDateRangeFilter = (isset($request->start_date) && isset($request->end_date)) &&
+            ($this->dateFormat($request->start_date)->lte($this->dateFormat($request->end_date)));
+
         return collect(DailyTimeRecord::where('user_id', $request->user_id)
             ->where(function($query) {
                 $query->where('status', 'submitted')
@@ -42,6 +45,9 @@ class SupervisorController extends Controller
             })
             ->select('daily_time_records.*', DB::raw("DATE_FORMAT(date, '%m-%Y') monthyear"))
             ->orderBy('date', 'DESC')
+            ->when($canDateRangeFilter, function($query) use($request) {
+                $query->whereBetween('date', [$request->start_date, $request->end_date]);
+            })
             ->get())
             ->groupBy('monthyear')
             ->all();
@@ -63,24 +69,21 @@ class SupervisorController extends Controller
             ->all();
     }
 
-
-     
-
-    public function validateInternDailyTimeRecords(Request $request) 
+    public function validateInternDailyTimeRecords(Request $request)
     {
         return DailyTimeRecord::whereIn('id', $request->ids)
             ->where('status', 'submitted')
             ->update(['status' => 'validated']);
     }
 
-    public function validateRequirments(Request $request) 
+    public function validateRequirments(Request $request)
     {
         return Requirement::whereIn('id', $request->ids)
             ->where('status', 'submitted')
             ->update(['status' => 'validated']);
     }
 
-    public function validateInternDetailedReports(Request $request) 
+    public function validateInternDetailedReports(Request $request)
     {
         return DetailedReport::whereIn('id', $request->ids)
             ->where('status', 'submitted')
@@ -100,7 +103,7 @@ class SupervisorController extends Controller
                 'evaluation'        => $request->evaluation,
             ]
         );
-        
+
         return response()->json(['message' => 'Evaluation saved.']);
     }
 
@@ -118,7 +121,7 @@ class SupervisorController extends Controller
                 if(!is_null($dailyTimeRecord->overtime_start_time) && !is_null($dailyTimeRecord->overtime_end_time) ) {
                     $overtimeTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->overtime_start_time, $dailyTimeRecord->overtime_end_time);
                 }
-                
+
                 return $carry + (($amTotalHours + $pmTotalHours) + $overtimeTotalHours);
             });
 
@@ -169,6 +172,11 @@ class SupervisorController extends Controller
         $end_time = Carbon::parse($date . ' ' . $end_time);
 
         return round($end_time->diffInMinutes($start_time, true) / 60, 2);
+    }
+
+    private function dateFormat($date)
+    {
+        return Carbon::createFromFormat('Y-m-d', $date);
     }
 
 }

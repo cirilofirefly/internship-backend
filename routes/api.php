@@ -17,7 +17,9 @@ use App\Http\Controllers\Api\RFIDRegistrationQueueController;
 use App\Http\Controllers\Api\SupervisorController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
@@ -88,6 +90,7 @@ Route::middleware('auth:sanctum')
         Route::get('get-assigned-interns', 'getAssignedInterns');
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('intern-rfid-registration', 'internRfidRegistration');
+        Route::get('get-no-submiited-students', 'getNoSubmitStudents');
     });
 
 Route::middleware('auth:sanctum')
@@ -221,3 +224,11 @@ Route::middleware('auth:sanctum')
         Route::delete('delete/{id}', 'deleteDTRFile');
 
     });
+
+
+Route::get('/get-file/{path}/{file}', function ($path, $file) {
+    $path = $path . '/'. $file;
+    $file = Storage::get($file);
+    Log::info($path.$file);
+    return response($file, 200)->header('Content-Type', Storage::mimeType($path));
+});

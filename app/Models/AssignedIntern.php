@@ -22,5 +22,10 @@ class AssignedIntern extends Model
     {
         return $this->hasOne('App\Models\User', 'id', 'intern_user_id');
     }
-    
+
+    public function dailyTimeRecords()
+    {
+        return $this->hasMany('App\Models\DailyTimeRecord', 'user_id', 'intern_user_id');
+    }
+
 }

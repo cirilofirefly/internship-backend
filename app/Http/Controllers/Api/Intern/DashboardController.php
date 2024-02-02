@@ -20,10 +20,7 @@ class DashboardController extends Controller
     public function getDashboardCount(Request $request)
     {
 
-        $user_id = isset($request->user_id) ? 
-            $request->user_id : 
-            $request->user()->id;
-
+        $user_id = isset($request->user_id) ? $request->user_id : $request->user()->id;
         $rendered_time = DailyTimeRecord::where('user_id', $user_id)
             ->where('status', DailyTimeRecord::VALIDATED)
             ->get()
@@ -40,11 +37,12 @@ class DashboardController extends Controller
 
         $remaining_time = DailyTimeRecord::TOTAL_HOURS - $rendered_time;
         $assigned_intern = AssignedIntern::where('intern_user_id', $user_id)->first();
-        
+
         $absent = 0;
+        $supervisor = null;
 
         if($assigned_intern) {
-            
+
             $supervisor = Supervisor::where('portal_id', $assigned_intern->supervisor_user_id)->first();
 
             if(!is_null($supervisor->working_day_start) && !is_null($supervisor->working_day_end)) {
@@ -113,11 +111,11 @@ class DashboardController extends Controller
 
         return DailyTimeRecord::with('intern')
             ->whereIn('user_id', $intern_ids)
-            ->whereBetween('date', [ 
+            ->whereBetween('date', [
                 Carbon::now()->startOfMonth()->format('Y-m-d'),
                 Carbon::now()->endOfMonth()->format('Y-m-d')
             ])
-            ->get();   
+            ->get();
     }
 
     public function getInternRequirements(Request $request)
@@ -127,7 +125,7 @@ class DashboardController extends Controller
 
         return Requirement::with('user')
             ->whereIn('user_id', $intern_ids)
-            ->get();  
+            ->get();
     }
 
     public function internshipStats(Request $request)
@@ -150,13 +148,13 @@ class DashboardController extends Controller
 
         $interns = Intern::where('coordinator_id', $coordinator_id)
             ->get()->pluck(['portal_id']);
-        
+
         foreach($interns as $intern) {
 
             $hasSubmitted = DailyTimeRecord::where('user_id', $intern)
                 ->whereRelation('detailedReport', 'status', 'submitted')
                 ->exists();
-            
+
             if($hasSubmitted) {
                 $intern_requirement_submitted++;
             } else {
