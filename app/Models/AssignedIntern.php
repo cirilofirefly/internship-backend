@@ -27,5 +27,4 @@ class AssignedIntern extends Model
     {
         return $this->hasMany('App\Models\DailyTimeRecord', 'user_id', 'intern_user_id');
     }
-
 }

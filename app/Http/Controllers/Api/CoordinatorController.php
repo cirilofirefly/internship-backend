@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssignInternRequest;
 use App\Models\AssignedIntern;
+use App\Models\DailyTimeRecord;
 use App\Models\InternJobPreference;
 use App\Models\Requirement;
 use App\Models\User;
@@ -92,14 +93,48 @@ class CoordinatorController extends Controller
 
     public function getInternEvaluation(Request $request)
     {
-        return InternJobPreference::where('intern_user_id', $request->user_id)
+        $intern_job_preference = InternJobPreference::where('intern_user_id', $request->user_id)
             ->first();
+        return response()->json($intern_job_preference, 200);
     }
 
     public function getNoSubmitStudents(Request $request)
     {
+        $user = $request->user();
+        switch($request->submission_type) {
+            case 'detailed-report':
+                return $this->detailedReportNoSubmission($user);
+            case 'daily-time-record':
+                return $this->dailyTimeRecordNoSubmission($user);
+        }
+
+    }
+
+    private function detailedReportNoSubmission($user)
+    {
         $userIds = User::whereSupervisor()
-                ->whereRelation('supervisor', 'coordinator_id', $request->user()->id)
+                ->whereRelation('supervisor', 'coordinator_id', $user->id)
+                ->pluck('id');
+
+        $assigned_interns = AssignedIntern::whereIn('supervisor_user_id', $userIds)
+            ->with('intern')
+            ->get();
+
+        return $assigned_interns->filter(function($assigned_intern) {
+
+            return DailyTimeRecord::where('user_id', $assigned_intern->intern_user_id)
+                ->with('detailedReport')
+                ->whereRelation('detailedReport', function($query) {
+                    $query->whereIn('status', ['submitted', 'validated']);
+                })
+                ->count() === 0;
+        });
+    }
+
+    private function dailyTimeRecordNoSubmission($user)
+    {
+        $userIds = User::whereSupervisor()
+                ->whereRelation('supervisor', 'coordinator_id', $user->id)
                 ->pluck('id');
 
         $assigned_interns = AssignedIntern::whereIn('supervisor_user_id', $userIds)

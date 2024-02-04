@@ -35,8 +35,7 @@ class SupervisorController extends Controller
 
     public function getInternDailyTimeRecords(Request $request)
     {
-        $canDateRangeFilter = (isset($request->start_date) && isset($request->end_date)) &&
-            ($this->dateFormat($request->start_date)->lte($this->dateFormat($request->end_date)));
+        $canDateRangeFilter = (isset($request->start_date) && isset($request->end_date)) && ($this->dateFormat($request->start_date)->lte($this->dateFormat($request->end_date)));
 
         return collect(DailyTimeRecord::where('user_id', $request->user_id)
             ->where(function($query) {
@@ -55,6 +54,8 @@ class SupervisorController extends Controller
 
     public function getInternDetailedReports(Request $request)
     {
+        $canDateRangeFilter = (isset($request->start_date) && isset($request->end_date)) && ($this->dateFormat($request->start_date)->lte($this->dateFormat($request->end_date)));
+
         return collect(DailyTimeRecord::where('user_id', $request->user_id)
             ->with('detailedReport')
             ->whereRelation('detailedReport', function($query) {
@@ -64,6 +65,9 @@ class SupervisorController extends Controller
             })
             ->select('daily_time_records.*', DB::raw("DATE_FORMAT(date, '%m-%Y') monthyear"))
             ->orderBy('date', 'DESC')
+            ->when($canDateRangeFilter, function($query) use($request) {
+                $query->whereBetween('date', [$request->start_date, $request->end_date]);
+            })
             ->get())
             ->groupBy('monthyear')
             ->all();
