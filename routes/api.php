@@ -91,6 +91,7 @@ Route::middleware('auth:sanctum')
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('intern-rfid-registration', 'internRfidRegistration');
         Route::get('get-no-submitted-students', 'getNoSubmitStudents');
+        Route::get('get-intern-evaluation-status', 'getInternEvaluationStatus');
     });
 
 Route::middleware('auth:sanctum')
@@ -104,6 +105,7 @@ Route::middleware('auth:sanctum')
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('save-intern-evaluation', 'saveInternEvaluation');
+        Route::get('get-no-submitted-students', 'getNoSubmitStudents');
         Route::get('get-intern-evaluation', 'getInternEvaluation');
         Route::get('get-ojt-working-days', 'getOJTWorkingDays');
         Route::put('update-ojt-working-day', 'updateOJTWorkingDay');

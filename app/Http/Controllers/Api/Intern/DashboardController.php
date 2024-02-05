@@ -125,6 +125,7 @@ class DashboardController extends Controller
 
         return Requirement::with('user')
             ->whereIn('user_id', $intern_ids)
+            ->whereIn('status', ['validated', 'submitted'])
             ->get();
     }
 

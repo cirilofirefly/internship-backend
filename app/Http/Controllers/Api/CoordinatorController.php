@@ -8,6 +8,7 @@ use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
 use App\Models\InternJobPreference;
 use App\Models\Requirement;
+use App\Models\Supervisor;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -108,6 +109,31 @@ class CoordinatorController extends Controller
                 return $this->dailyTimeRecordNoSubmission($user);
         }
 
+    }
+
+    public function getInternEvaluationStatus(Request $request)
+    {
+        $supervisorUserIds = Supervisor::where('coordinator_id', $request->user()->id)->pluck('portal_id');
+        $assigned_interns = AssignedIntern::whereIn('supervisor_user_id', $supervisorUserIds)
+            ->with('intern')
+            ->whereRelation('intern', function($query) use($request) {
+                $query->where('username', 'like', '%' . $request->search . '%');
+            })
+            ->get();
+
+        $assigned_interns = $assigned_interns->map(function($assigned_intern) {
+            $assigned_intern['is_evaluated'] = InternJobPreference::where('intern_user_id', $assigned_intern->intern_user_id)->exists();
+            return $assigned_intern;
+        });
+
+        if($request->status !== 'ALL') {
+            $assigned_interns = $assigned_interns->filter(function($assigned_intern) use($request) {
+                $evaluationStatus = $request->status == 'evaluated';
+                return $assigned_intern['is_evaluated'] === $evaluationStatus;
+            });
+        }
+
+        return $assigned_interns;
     }
 
     private function detailedReportNoSubmission($user)

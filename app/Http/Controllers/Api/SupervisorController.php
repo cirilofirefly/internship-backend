@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\WorkingDayPeriodRequest;
+use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
 use App\Models\DetailedReport;
 use App\Models\InternJobPreference;
@@ -170,6 +171,17 @@ class SupervisorController extends Controller
         ]);
     }
 
+    public function getNoSubmitStudents(Request $request)
+    {
+        $user = $request->user();
+        switch($request->submission_type) {
+            case 'detailed-report':
+                return $this->detailedReportNoSubmission($user);
+            case 'daily-time-record':
+                return $this->dailyTimeRecordNoSubmission($user);
+        }
+    }
+
     private function calculateTotalHours($date, $start_time, $end_time): float
     {
         $start_time = Carbon::parse($date . ' ' . $start_time);
@@ -178,9 +190,41 @@ class SupervisorController extends Controller
         return round($end_time->diffInMinutes($start_time, true) / 60, 2);
     }
 
+
     private function dateFormat($date)
     {
         return Carbon::createFromFormat('Y-m-d', $date);
+    }
+
+    private function detailedReportNoSubmission($user)
+    {
+        $assigned_interns = AssignedIntern::where('supervisor_user_id', $user->id)
+            ->with('intern')
+            ->get();
+
+        return $assigned_interns->filter(function($assigned_intern) {
+
+            return DailyTimeRecord::where('user_id', $assigned_intern->intern_user_id)
+                ->with('detailedReport')
+                ->whereRelation('detailedReport', function($query) {
+                    $query->whereIn('status', ['submitted', 'validated']);
+                })
+                ->count() === 0;
+        });
+    }
+
+    private function dailyTimeRecordNoSubmission($user)
+    {
+        $assigned_interns = AssignedIntern::where('supervisor_user_id', $user->id)
+            ->with('dailyTimeRecords', 'intern')
+            ->get();
+
+        return $assigned_interns->filter(function($assigned_intern) {
+            $hasSubmission = count($assigned_intern->dailyTimeRecords->filter(function($dailyTimeRecord) {
+                return in_array($dailyTimeRecord->status, ['validated', 'submitted']);
+            })) > 0;
+            return count($assigned_intern->dailyTimeRecords) == 0 || !$hasSubmission;
+        });
     }
 
 }

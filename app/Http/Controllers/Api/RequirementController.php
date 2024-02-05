@@ -39,7 +39,9 @@ class RequirementController extends Controller
         return User::whereIntern()
             ->whereIn('id', $assignedInternIds)
             ->whereRaw("concat(first_name, ' ', last_name) like '%$searchKeyword%' ")
-            ->with('requirements')
+            ->with('requirements', function($query) {
+                $query->whereIn('status', ['validated', 'submitted']);
+            })
             ->has('requirements')
             ->paginate(5);
     }
