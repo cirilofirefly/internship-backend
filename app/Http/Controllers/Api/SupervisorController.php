@@ -21,16 +21,21 @@ class SupervisorController extends Controller
     public function getAssignedInterns(Request $request)
     {
         $no_paginate = isset($request->no_paginate) ? $request->no_paginate : false;
+
         $users = User::where('id', auth()->user()->id)
             ->select('id', 'first_name', 'last_name', 'middle_name')
             ->with([
                 'supervisor',
-                'assignedInterns' => function($query) {
-                    $query->with('intern', function($query) {
+                'assignedInterns' => function($query) use($request) {
+                    $query->with('intern', function($query) use($request) {
                         $query->with('intern');
+                    })
+                    ->when(isset($request->search), function($query) use($request) {
+                        $query->whereRelation('intern', 'username', 'LIKE', "%{$request->search}%");
                     });
                 }
             ]);
+
         return $no_paginate ? $users->get() : $users->paginate(5);
     }
 
@@ -211,6 +216,30 @@ class SupervisorController extends Controller
                 })
                 ->count() === 0;
         });
+    }
+
+    public function getInternEvaluationStatus(Request $request)
+    {
+        $assigned_interns = AssignedIntern::where('supervisor_user_id', $request->user()->id)
+            ->with('intern')
+            ->whereRelation('intern', function($query) use($request) {
+                $query->where('username', 'like', '%' . $request->search . '%');
+            })
+            ->get();
+
+        $assigned_interns = $assigned_interns->map(function($assigned_intern) {
+            $assigned_intern['is_evaluated'] = InternJobPreference::where('intern_user_id', $assigned_intern->intern_user_id)->exists();
+            return $assigned_intern;
+        });
+
+        if($request->status !== 'ALL') {
+            $assigned_interns = $assigned_interns->filter(function($assigned_intern) use($request) {
+                $evaluationStatus = $request->status == 'evaluated';
+                return $assigned_intern['is_evaluated'] === $evaluationStatus;
+            });
+        }
+
+        return $assigned_interns;
     }
 
     private function dailyTimeRecordNoSubmission($user)
