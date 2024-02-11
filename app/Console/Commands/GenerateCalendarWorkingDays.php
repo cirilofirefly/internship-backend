@@ -6,6 +6,7 @@ use App\Models\OJTCalendar;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class GenerateCalendarWorkingDays extends Command
 {
@@ -31,6 +32,7 @@ class GenerateCalendarWorkingDays extends Command
     public function handle()
     {
         $users = User::select('id')
+            ->with('supervisor')
             ->whereSupervisor()
             ->get();
 
@@ -38,7 +40,7 @@ class GenerateCalendarWorkingDays extends Command
         $totalMonths = 12;
 
         foreach($users as $user) {
-            
+
             for($month = 1; $month <= $totalMonths; $month++) {
 
                 $total_days_in_a_month = cal_days_in_month(CAL_GREGORIAN, $month, $current_year);
@@ -48,14 +50,18 @@ class GenerateCalendarWorkingDays extends Command
                     $formatted_date = Carbon::createFromFormat('Y-m-d',  $current_year . '-' . $month . '-' . $day);
                     $note = $formatted_date->isWeekend() ? 'Weekend' : 'Working Day';
 
-                    OJTCalendar::create([
-                        'title'          => $note,
-                        'date'           => $formatted_date, 
-                        'note'           => $note,
-                        'is_working_day' => !$formatted_date->isWeekend(),
-                        'supervisor_id'  => $user->id,
-                    ]);
-                
+                    OJTCalendar::firstOrCreate(
+                        [
+                            'supervisor_id'  => $user->id,
+                            'date'           => $formatted_date->format('Y-m-d'),
+                        ],
+                        [
+                            'title'          => $note,
+                            'note'           => $note,
+                            'is_working_day' => !$formatted_date->isWeekend(),
+                        ]
+                    );
+
                 }
             }
         };

@@ -102,11 +102,12 @@ class CoordinatorController extends Controller
     public function getNoSubmitStudents(Request $request)
     {
         $user = $request->user();
+        $search = $request->search;
         switch($request->submission_type) {
             case 'detailed-report':
-                return $this->detailedReportNoSubmission($user);
+                return $this->detailedReportNoSubmission($user, $search);
             case 'daily-time-record':
-                return $this->dailyTimeRecordNoSubmission($user);
+                return $this->dailyTimeRecordNoSubmission($user, $search);
         }
 
     }
@@ -117,7 +118,10 @@ class CoordinatorController extends Controller
         $assigned_interns = AssignedIntern::whereIn('supervisor_user_id', $supervisorUserIds)
             ->with('intern')
             ->whereRelation('intern', function($query) use($request) {
-                $query->where('username', 'like', '%' . $request->search . '%');
+                $query->when(isset($request->search), function($query) use($request) {
+                    $query->whereRaw("concat(first_name, ' ', last_name) like '%$request->search%' ")
+                        ->orWhere('username', 'LIKE', "%{$request->search}%");
+                });
             })
             ->get();
 
@@ -136,7 +140,7 @@ class CoordinatorController extends Controller
         return $assigned_interns;
     }
 
-    private function detailedReportNoSubmission($user)
+    private function detailedReportNoSubmission($user, $search)
     {
         $userIds = User::whereSupervisor()
                 ->whereRelation('supervisor', 'coordinator_id', $user->id)
@@ -144,6 +148,12 @@ class CoordinatorController extends Controller
 
         $assigned_interns = AssignedIntern::whereIn('supervisor_user_id', $userIds)
             ->with('intern')
+            ->whereRelation('intern', function($query) use($search) {
+                $query->when($search, function($query) use($search) {
+                    $query->whereRaw("concat(first_name, ' ', last_name) like '%$search%' ")
+                        ->orWhere('username', 'LIKE', "%{$search}%");
+                });
+            })
             ->get();
 
         return $assigned_interns->filter(function($assigned_intern) {
@@ -157,7 +167,7 @@ class CoordinatorController extends Controller
         });
     }
 
-    private function dailyTimeRecordNoSubmission($user)
+    private function dailyTimeRecordNoSubmission($user, $search)
     {
         $userIds = User::whereSupervisor()
                 ->whereRelation('supervisor', 'coordinator_id', $user->id)
@@ -165,6 +175,12 @@ class CoordinatorController extends Controller
 
         $assigned_interns = AssignedIntern::whereIn('supervisor_user_id', $userIds)
             ->with('dailyTimeRecords', 'intern')
+            ->whereRelation('intern', function($query) use($search) {
+                $query->when($search, function($query) use($search) {
+                    $query->whereRaw("concat(first_name, ' ', last_name) like '%$search%' ")
+                        ->orWhere('username', 'LIKE', "%{$search}%");
+                });
+            })
             ->get();
 
         return $assigned_interns->filter(function($assigned_intern) {

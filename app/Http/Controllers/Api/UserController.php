@@ -7,7 +7,6 @@ use App\Http\Requests\SupervisorRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UserRequest;
 use App\Mail\CreatedSupervisor;
-use App\Models\AssignedIntern;
 use App\Models\Coordinator;
 use App\Models\Supervisor;
 use App\Models\User;

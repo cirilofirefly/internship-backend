@@ -27,11 +27,14 @@ class SupervisorController extends Controller
             ->with([
                 'supervisor',
                 'assignedInterns' => function($query) use($request) {
-                    $query->with('intern', function($query) use($request) {
+                    $query->with('intern', function($query) {
                         $query->with('intern');
                     })
-                    ->when(isset($request->search), function($query) use($request) {
-                        $query->whereRelation('intern', 'username', 'LIKE', "%{$request->search}%");
+                    ->whereRelation('intern', function($query) use($request) {
+                        $query->when($request->search, function($query) use($request) {
+                            $query->whereRaw("concat(first_name, ' ', last_name) like '%$request->search%' ")
+                                ->orWhere('username', 'LIKE', "%{$request->search}%");
+                        });
                     });
                 }
             ]);
@@ -149,10 +152,13 @@ class SupervisorController extends Controller
     {
 
         $has_working_period = !is_null($request->user()->supervisor->working_day_start) && !is_null($request->user()->supervisor->working_day_end);
+        $date_between = $has_working_period ?
+            [$request->user()->supervisor->working_day_start, $request->user()->supervisor->working_day_end] :
+            [$request->start, $request->end];
 
         return response()->json([
             'has_working_period'    => $has_working_period,
-            'ojt_calendar'          => OJTCalendar::whereBetween('date',[$request->start, $request->end])
+            'ojt_calendar'          => OJTCalendar::whereBetween('date', $date_between)
                 ->where('supervisor_id', $request->user()->id)
                 ->get()
         ]);
@@ -179,11 +185,12 @@ class SupervisorController extends Controller
     public function getNoSubmitStudents(Request $request)
     {
         $user = $request->user();
+        $search = $request->search;
         switch($request->submission_type) {
             case 'detailed-report':
-                return $this->detailedReportNoSubmission($user);
+                return $this->detailedReportNoSubmission($user, $search);
             case 'daily-time-record':
-                return $this->dailyTimeRecordNoSubmission($user);
+                return $this->dailyTimeRecordNoSubmission($user, $search);
         }
     }
 
@@ -201,10 +208,16 @@ class SupervisorController extends Controller
         return Carbon::createFromFormat('Y-m-d', $date);
     }
 
-    private function detailedReportNoSubmission($user)
+    private function detailedReportNoSubmission($user, $search)
     {
         $assigned_interns = AssignedIntern::where('supervisor_user_id', $user->id)
             ->with('intern')
+            ->whereRelation('intern', function($query) use($search) {
+                $query->when($search, function($query) use($search) {
+                    $query->whereRaw("concat(first_name, ' ', last_name) like '%$search%' ")
+                        ->orWhere('username', 'LIKE', "%{$search}%");
+                });
+            })
             ->get();
 
         return $assigned_interns->filter(function($assigned_intern) {
@@ -223,7 +236,10 @@ class SupervisorController extends Controller
         $assigned_interns = AssignedIntern::where('supervisor_user_id', $request->user()->id)
             ->with('intern')
             ->whereRelation('intern', function($query) use($request) {
-                $query->where('username', 'like', '%' . $request->search . '%');
+                $query->when(isset($request->search), function($query) use($request) {
+                    $query->whereRaw("concat(first_name, ' ', last_name) like '%$request->search%' ")
+                        ->orWhere('username', 'LIKE', "%{$request->search}%");
+                });
             })
             ->get();
 
@@ -242,10 +258,16 @@ class SupervisorController extends Controller
         return $assigned_interns;
     }
 
-    private function dailyTimeRecordNoSubmission($user)
+    private function dailyTimeRecordNoSubmission($user, $search)
     {
         $assigned_interns = AssignedIntern::where('supervisor_user_id', $user->id)
             ->with('dailyTimeRecords', 'intern')
+            ->whereRelation('intern', function($query) use($search) {
+                $query->when($search, function($query) use($search) {
+                    $query->whereRaw("concat(first_name, ' ', last_name) like '%$search%' ")
+                        ->orWhere('username', 'LIKE', "%{$search}%");
+                });
+            })
             ->get();
 
         return $assigned_interns->filter(function($assigned_intern) {
