@@ -7,6 +7,7 @@ use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
 use App\Models\Intern;
 use App\Models\OJTCalendar;
+use App\Models\Requirement;
 use App\Models\Supervisor;
 use App\Models\User;
 use Carbon\Carbon;
@@ -19,10 +20,7 @@ class DashboardController extends Controller
     public function getDashboardCount(Request $request)
     {
 
-        $user_id = isset($request->user_id) ? 
-            $request->user_id : 
-            $request->user()->id;
-
+        $user_id = isset($request->user_id) ? $request->user_id : $request->user()->id;
         $rendered_time = DailyTimeRecord::where('user_id', $user_id)
             ->where('status', DailyTimeRecord::VALIDATED)
             ->get()
@@ -30,17 +28,21 @@ class DashboardController extends Controller
 
                 $amTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->am_start_time, $dailyTimeRecord->am_end_time);
                 $pmTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->pm_start_time, $dailyTimeRecord->pm_end_time);
-
-                return $carry + ($amTotalHours + $pmTotalHours);
+                $overtimeTotalHours = 0;
+                if(!is_null($dailyTimeRecord->overtime_start_time) || !is_null($dailyTimeRecord->overtime_end_time) ) {
+                    $overtimeTotalHours = $this->calculateTotalHours($dailyTimeRecord->date, $dailyTimeRecord->overtime_start_time, $dailyTimeRecord->overtime_end_time);
+                }
+                return $carry + (($amTotalHours + $pmTotalHours) + $overtimeTotalHours);
             });
 
         $remaining_time = DailyTimeRecord::TOTAL_HOURS - $rendered_time;
         $assigned_intern = AssignedIntern::where('intern_user_id', $user_id)->first();
-        
+
         $absent = 0;
+        $supervisor = null;
 
         if($assigned_intern) {
-            
+
             $supervisor = Supervisor::where('portal_id', $assigned_intern->supervisor_user_id)->first();
 
             if(!is_null($supervisor->working_day_start) && !is_null($supervisor->working_day_end)) {
@@ -102,15 +104,29 @@ class DashboardController extends Controller
         return round($end_time->diffInMinutes($start_time, true) / 60, 2);
     }
 
-    public function getTodayInternDailyTimeRecords(Request $request)
+    public function getMonthlyInternDailyTimeRecords(Request $request)
     {
         $intern_ids = AssignedIntern::where('supervisor_user_id', $request->user()->id)
             ->pluck('intern_user_id');
 
         return DailyTimeRecord::with('intern')
             ->whereIn('user_id', $intern_ids)
-            ->whereDate('created_at', Carbon::today())
-            ->get();   
+            ->whereBetween('date', [
+                Carbon::now()->startOfMonth()->format('Y-m-d'),
+                Carbon::now()->endOfMonth()->format('Y-m-d')
+            ])
+            ->get();
+    }
+
+    public function getInternRequirements(Request $request)
+    {
+        $intern_ids = AssignedIntern::where('supervisor_user_id', $request->user()->id)
+            ->pluck('intern_user_id');
+
+        return Requirement::with('user')
+            ->whereIn('user_id', $intern_ids)
+            ->whereIn('status', ['validated', 'submitted'])
+            ->get();
     }
 
     public function internshipStats(Request $request)
@@ -133,13 +149,13 @@ class DashboardController extends Controller
 
         $interns = Intern::where('coordinator_id', $coordinator_id)
             ->get()->pluck(['portal_id']);
-        
+
         foreach($interns as $intern) {
 
             $hasSubmitted = DailyTimeRecord::where('user_id', $intern)
                 ->whereRelation('detailedReport', 'status', 'submitted')
                 ->exists();
-            
+
             if($hasSubmitted) {
                 $intern_requirement_submitted++;
             } else {

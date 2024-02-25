@@ -26,14 +26,16 @@ class RequirementRequest extends FormRequest
     public function rules()
     {
         return [
-            'requirement_type'  => "required|in:" . 
-                Requirement::APPLICATION_LETTER . ','  . 
-                Requirement::RESUME . ',' . 
-                Requirement::COMPANY_PROFILE . ','  . 
-                Requirement::LETTER_OF_ENDORSEMENT . ',' . 
-                Requirement::MEMORANDUM_OF_AGREEMENT,
+            'requirement_type'  => "required|in:" .
+                Requirement::APPLICATION_LETTER . ','  .
+                Requirement::RESUME . ',' .
+                Requirement::COMPANY_PROFILE . ','  .
+                Requirement::LETTER_OF_ENDORSEMENT . ',' .
+                Requirement::MEMORANDUM_OF_AGREEMENT . ',' .
+                Requirement::OTHERS,
 
             'file'              => "required|mimes:jpg,png,pdf,docx,doc",
+            'others_name'       => "required_if:requirement_type,'='," . Requirement::OTHERS
         ];
     }
 }

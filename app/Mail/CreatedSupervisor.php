@@ -10,13 +10,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendCodeResetPassword extends Mailable implements ShouldQueue
+class CreatedSupervisor extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $token;
-    public $email;
-    public $full_name;
+    public $password;
+    public $user;
 
 
     /**
@@ -24,14 +23,11 @@ class SendCodeResetPassword extends Mailable implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($resetPassword)
+    public function __construct($password, $user)
     {
-        $this->token = $resetPassword->token;
-        $this->email = $resetPassword->email;
-        $this->full_name = $resetPassword->full_name;
+        $this->password = $password;
+        $this->user = $user;
     }
-
-
     /**
      * Get the message envelope.
      *
@@ -41,7 +37,7 @@ class SendCodeResetPassword extends Mailable implements ShouldQueue
     {
         return new Envelope(
             from: new Address('test@example.com', 'Test'),
-            subject: 'Reset Password Request',
+            subject: 'New Created Supervisor',
         );
     }
 
@@ -53,10 +49,10 @@ class SendCodeResetPassword extends Mailable implements ShouldQueue
     public function content()
     {
         return new Content(
-            view: 'emails.send-code-reset-password',
+            view: 'emails.created-supervisor',
             with: [
-                'token' => $this->token,
-                'email' => $this->email,
+                'password' => $this->password,
+                'user'     => $this->user,
             ]
         );
     }

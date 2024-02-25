@@ -137,4 +137,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\AssignedIntern', 'supervisor_user_id');
     }
+
+    public function assignedIntern()
+    {
+        return $this->hasOne('App\Models\AssignedIntern', 'intern_user_id');
+    }
 }

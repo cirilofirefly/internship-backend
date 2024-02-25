@@ -13,6 +13,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Redirect;
@@ -101,34 +102,43 @@ class AuthController extends Controller
 
     public function registerIntern(InternRegistration $request)
     {
-        $data = [
-            'username'          => $request->student_number,
-            'password'          => $request->password,
-            'first_name'        => $request->first_name,
-            'last_name'         => $request->last_name,
-            'middle_name'       => $request->middle_name,
-            'suffix'            => $request->suffix,
-            'gender'            => $request->gender,
-            'birthday'          => $request->birthday,
-            'email'             => $request->email,
-            'nationality'       => $request->nationality,
-            'civil_status'      => $request->civil_status,
-            'contact_number'    => $request->contact_number,
-            'user_type'         => User::INTERN,
-        ];
+        try {
+            DB::beginTransaction();
 
-        $user = User::create($data);
+            $data = [
+                'username'          => $request->student_number,
+                'password'          => $request->password,
+                'first_name'        => $request->first_name,
+                'last_name'         => $request->last_name,
+                'middle_name'       => $request->middle_name,
+                'suffix'            => $request->suffix,
+                'gender'            => $request->gender,
+                'birthday'          => $request->birthday,
+                'email'             => $request->email,
+                'nationality'       => $request->nationality,
+                'civil_status'      => $request->civil_status,
+                'contact_number'    => $request->contact_number,
+                'user_type'         => User::INTERN,
+            ];
 
-        if($user) {
-            Intern::create([
-                'student_number'    => $request->student_number,
-                'year_level'        => $request->year_level,
-                'college'           => $request->college,
-                'program'           => $request->program,
-                'section'           => $request->section,
-                'portal_id'         => $user->id,
-                'coordinator_id'    => $request->coordinator_id
-            ]);
+            $user = User::create($data);
+
+            if($user) {
+                Intern::create([
+                    'student_number'    => $request->student_number,
+                    'year_level'        => $request->year_level,
+                    'college'           => $request->college,
+                    'program'           => $request->program,
+                    'section'           => $request->section,
+                    'portal_id'         => $user->id,
+                    'coordinator_id'    => $request->coordinator_id
+                ]);
+            }
+
+            DB::commit();
+        } catch(\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Intern registration failed: ' . $e->getMessage()], 500);
         }
 
         return response()->json(['status' => 'success'], 200);

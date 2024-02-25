@@ -17,7 +17,9 @@ use App\Http\Controllers\Api\RFIDRegistrationQueueController;
 use App\Http\Controllers\Api\SupervisorController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
@@ -88,6 +90,8 @@ Route::middleware('auth:sanctum')
         Route::get('get-assigned-interns', 'getAssignedInterns');
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('intern-rfid-registration', 'internRfidRegistration');
+        Route::get('get-no-submitted-students', 'getNoSubmitStudents');
+        Route::get('get-intern-evaluation-status', 'getInternEvaluationStatus');
     });
 
 Route::middleware('auth:sanctum')
@@ -101,10 +105,12 @@ Route::middleware('auth:sanctum')
         Route::post('validate-intern-detailed-reports', 'validateInternDetailedReports');
         Route::post('validate-requirements', 'validateRequirments');
         Route::post('save-intern-evaluation', 'saveInternEvaluation');
+        Route::get('get-no-submitted-students', 'getNoSubmitStudents');
         Route::get('get-intern-evaluation', 'getInternEvaluation');
         Route::get('get-ojt-working-days', 'getOJTWorkingDays');
         Route::put('update-ojt-working-day', 'updateOJTWorkingDay');
         Route::put('update-working-period', 'updateWorkingPeriod');
+        Route::get('get-intern-evaluation-status', 'getInternEvaluationStatus');
     });
 
 Route::middleware('auth:sanctum')
@@ -195,10 +201,10 @@ Route::middleware('auth:sanctum')
     ->prefix('supervisor')
     ->group(function () {
         Route::prefix('dashboard')->group(function () {
-            Route::get('get-today-intern-daily-time-records', 'getTodayInternDailyTimeRecords');
+            Route::get('get-monthly-intern-daily-time-records', 'getMonthlyInternDailyTimeRecords');
+            Route::get('get-intern-requirements', 'getInternRequirements');
         });
     });
-
 
 Route::middleware('auth:sanctum')
     ->controller(DashboardController::class)
@@ -221,3 +227,11 @@ Route::middleware('auth:sanctum')
         Route::delete('delete/{id}', 'deleteDTRFile');
 
     });
+
+
+Route::get('/get-file/{path}/{file}', function ($path, $file) {
+    $path = $path . '/'. $file;
+    $file = Storage::get($file);
+    Log::info($path.$file);
+    return response($file, 200)->header('Content-Type', Storage::mimeType($path));
+});

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RequirementRequest;
+use App\Models\AssignedIntern;
 use App\Models\Requirement;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class RequirementController extends Controller
@@ -14,33 +16,32 @@ class RequirementController extends Controller
     public function getRequirements(Request $request)
     {
         $user_id = isset($request->from_supervisor) ? $request->user_id : $request->user()->id;
-        $searchKeyword = isset($request->search) ?
-            $request->search :
-            '';
+        $searchKeyword = isset($request->search) ? $request->search : '';
+
         return Requirement::where('user_id', $user_id)
             ->where(function($query) use($searchKeyword) {
                 $query->where('file_name', 'like', '%' . $searchKeyword . '%')
-                    ->orWhere('type', 'like', '%' . $searchKeyword . '%');
+                    ->orWhere('type', 'like', '%' . $searchKeyword . '%')
+                    ->orWhere('others_name', 'like', '%' . $searchKeyword . '%');
             })
+            ->when($request->from_supervisor, function($query) {
+                $query->whereIn('status', ['submitted', 'validated']);
+            })
+            ->with('user')
             ->paginate(5);
     }
 
     public function getRequirementsAsSupervisor(Request $request)
     {
-        $searchKeyword = isset($request->search) ?
-            $request->search :
-            '';
+        $assignedInternIds = AssignedIntern::where('supervisor_user_id', $request->user()->id)->pluck('intern_user_id');
+        $searchKeyword = isset($request->search) ? $request->search : '';
+
         return User::whereIntern()
-            // ->where(function($query) use($searchKeyword) {
-            //     $query->where('product_name', 'LIKE', '%' . $searchKeyword . '%');
-
-            //     $columns = ['product_code', 'place_location', 'remark'];
-
-            //     foreach ($columns as $column ) {
-            //         $query->orWhere($column, 'LIKE', '%' . $searchKeyword . '%');
-            //     }
-            // })
-            ->with('requirements')
+            ->whereIn('id', $assignedInternIds)
+            ->whereRaw("concat(first_name, ' ', last_name) like '%$searchKeyword%' ")
+            ->with('requirements', function($query) {
+                $query->whereIn('status', ['validated', 'submitted']);
+            })
             ->has('requirements')
             ->paginate(5);
     }
@@ -52,9 +53,10 @@ class RequirementController extends Controller
             'type'          => $request->requirement_type,
             'file_name'     => $request->file('file')->getClientOriginalName(),
             'file'          => $request->file('file')->store('requirements'),
+            'others_name'   => $request->others_name,
         ]);
     }
-    
+
     public function submitRequirements(Request $request)
     {
         return Requirement::whereIn('id', $request->ids)
@@ -70,7 +72,7 @@ class RequirementController extends Controller
         if(Storage::exists($requirment->file)) {
             Storage::delete($requirment->file);
         }
-        
+
         return $requirment->delete();
     }
 
