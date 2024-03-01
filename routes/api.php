@@ -135,6 +135,7 @@ Route::middleware('auth:sanctum')
         Route::post('submit-daily-time-record', 'submitDailyTimeRecord');
         Route::put('update-daily-time-record/{id}', 'updateDailyTimeRecord');
         Route::delete('delete-daily-time-record/{id}', 'deleteDailyTimeRecord');
+        Route::get('get-intern-supervisor', 'getInternSupervisor');
     });
 
 Route::middleware('auth:sanctum')

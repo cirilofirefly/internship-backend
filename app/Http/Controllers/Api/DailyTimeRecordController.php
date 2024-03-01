@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DailyTimeRecordRequest;
+use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,11 +13,17 @@ use Illuminate\Support\Facades\DB;
 class DailyTimeRecordController extends Controller
 {
 
+    public function getInternSupervisor(Request $request)
+    {
+        $assigned_intern = AssignedIntern::where('intern_user_id', $request->user()->id)->first();
+        return $assigned_intern->supervisor;
+    }
+
     public function timeInOut(Request $request)
     {
         $user = User::select(
-                'users.id', 
-                'users.first_name', 
+                'users.id',
+                'users.first_name',
                 'users.last_name',
                 'users.dtr_time_count',
                 'interns.student_number as student_number'
@@ -132,8 +139,8 @@ class DailyTimeRecordController extends Controller
     private function checkInReponse($user, $currentTime, $checkName)
     {
         return [
-            'user'          => $user, 
-            'current_time'  => $currentTime, 
+            'user'          => $user,
+            'current_time'  => $currentTime,
             'check_name'    => $checkName
         ];
     }
