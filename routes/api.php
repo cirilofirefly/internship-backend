@@ -224,6 +224,7 @@ Route::middleware('auth:sanctum')
 
         Route::get('all', 'getDTRFiles');
         Route::post('upload', 'uploadDTRFile');
+        Route::get('download', 'downloadDTRFile');
         Route::put('update/{id}', 'updateDTRFile');
         Route::delete('delete/{id}', 'deleteDTRFile');
 
