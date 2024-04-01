@@ -129,13 +129,13 @@ Route::middleware('auth:sanctum')
     ->controller(DailyTimeRecordController::class)
     ->prefix('intern')
     ->group(function () {
-
         Route::get('get-daily-time-records', 'getDailyTimeRecords');
         Route::post('save-daily-time-record', 'saveDailyTimeRecord');
         Route::post('submit-daily-time-record', 'submitDailyTimeRecord');
         Route::put('update-daily-time-record/{id}', 'updateDailyTimeRecord');
         Route::delete('delete-daily-time-record/{id}', 'deleteDailyTimeRecord');
         Route::get('get-intern-supervisor', 'getInternSupervisor');
+        Route::post('save-manual-dtr', 'saveManualDTR');
     });
 
 Route::middleware('auth:sanctum')

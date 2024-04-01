@@ -37,4 +37,9 @@ class DailyTimeRecord extends Model
     {
         return $this->belongsTo('App\Models\DetailedReport', 'id', 'daily_time_record_id');
     }
+
+    public function proofs()
+    {
+        return $this->hasMany('App\Models\DTRProof', 'daily_time_record_id', 'id');
+    }
 }
