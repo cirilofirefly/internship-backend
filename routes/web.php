@@ -23,5 +23,5 @@ Route::controller(AuthController::class)->group(function(){
     Route::get('auth/google/callback', 'googleCallback');
     Route::get('signin/{method}', 'signin');
 });
-        
+
 

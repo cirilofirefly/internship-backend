@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('generate:calendar-working-days')
-            ->everyMinute();
+            ->everyTwoMinutes();
             // ->cron('0 0 1 1 *');
     }
 

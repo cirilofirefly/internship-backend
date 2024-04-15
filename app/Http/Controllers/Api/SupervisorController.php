@@ -47,6 +47,7 @@ class SupervisorController extends Controller
         $canDateRangeFilter = (isset($request->start_date) && isset($request->end_date)) && ($this->dateFormat($request->start_date)->lte($this->dateFormat($request->end_date)));
 
         return collect(DailyTimeRecord::where('user_id', $request->user_id)
+            ->with('proofs')
             ->where(function($query) {
                 $query->where('status', 'submitted')
                     ->orWhere('status', 'validated');

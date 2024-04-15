@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DailyTimeRecordRequest;
 use App\Models\AssignedIntern;
 use App\Models\DailyTimeRecord;
+use App\Models\DTRProof;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DailyTimeRecordController extends Controller
 {
@@ -42,7 +44,7 @@ class DailyTimeRecordController extends Controller
 
     public function getDailyTimeRecords(Request $request)
     {
-        return collect(DailyTimeRecord::where('user_id', $request->user()->id)
+        return collect(DailyTimeRecord::where('user_id', $request->user()->id)->with('proofs')
             ->select('daily_time_records.*', DB::raw("DATE_FORMAT(date, '%m-%Y') monthyear"))
             ->orderBy('date', 'desc')
             ->get())
@@ -136,6 +138,62 @@ class DailyTimeRecordController extends Controller
         return $this->checkInReponse($user, $currentTime, $checkName);
     }
 
+    public function saveManualDTR(Request $request)
+    {
+
+        $user_id = $request->user()->id;
+        $dailyTimeRecord = DailyTimeRecord::whereDate('date', \Carbon\Carbon::now())
+                ->where('user_id', $user_id)->first();
+
+        if(!$dailyTimeRecord) {
+            $dailyTimeRecord = DailyTimeRecord::create([
+                'date'                  => \Carbon\Carbon::now()->toDateString(),
+                'am_start_time'         => '',
+                'am_end_time'           => '',
+                'pm_start_time'         => '',
+                'pm_end_time'           => '',
+                'overtime_start_time'   => '',
+                'overtime_end_time'     => '',
+                'description'           => '',
+                'status'                => 'default',
+                'user_id'               => $user_id
+            ]);
+            if($request->key) {
+                $this->saveDTRTime($dailyTimeRecord, $request->key);
+            }
+        } else {
+            $this->saveDTRTime($dailyTimeRecord, $request->key);
+        }
+
+        $base64Image = $request->input('image');
+        list($type, $data) = explode(';', $base64Image);
+        list(, $data)      = explode(',', $data);
+        list(, $extension) = explode('/', $type);
+        $filename = uniqid() . '.' . $extension;
+        $url = '';
+
+        $base64Image = substr($base64Image, strpos($base64Image, ',') + 1);
+        $imageData = base64_decode($base64Image);
+
+        $file = Storage::disk('public')->put('dtr_proofs/' . $filename, $imageData);
+        if($file) {
+            $url = 'dtr_proofs/' . $filename;
+        }
+
+        $dtr_proof = DTRProof::updateOrCreate(
+            [
+                'daily_time_record_id'  => $dailyTimeRecord->id,
+                'key'                   => $request->key,
+            ],
+            [
+                'daily_time_record_id'  => $dailyTimeRecord->id,
+                'key'                   => $request->key,
+                'image_proof'           => $url
+        ]);
+
+        return $dtr_proof;
+    }
+
     private function checkInReponse($user, $currentTime, $checkName)
     {
         return [
@@ -143,5 +201,11 @@ class DailyTimeRecordController extends Controller
             'current_time'  => $currentTime,
             'check_name'    => $checkName
         ];
+    }
+
+    private function saveDTRTime(DailyTimeRecord $dailyTimeRecord, $key)
+    {
+        $dailyTimeRecord->{$key} = \Carbon\Carbon::now()->format('H:i');
+        $dailyTimeRecord->save();
     }
 }
